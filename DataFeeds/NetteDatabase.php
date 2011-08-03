@@ -150,8 +150,7 @@ class NetteDatabase implements IDataFeed {
                 throw new Exception('itemName is invalid');
             }
         } else {
-            $entity = $this->getEntityManager()->find($this->entityName, $id);
-            return $entity->getItemName();
+            $entity = $this->getSelection()->get($id);
         }
     }
 
