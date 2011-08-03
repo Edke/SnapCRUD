@@ -68,6 +68,10 @@ class NetteDatabase implements IDataFeed {
                 });
     }
 
+    /**
+     * @param string $key
+     * @return \Nette\Database\Table\Selection
+     */
     public function getSelection($key = null) {
         if (is_null($key)) {
             $key = $this->active;
@@ -161,7 +165,6 @@ class NetteDatabase implements IDataFeed {
 
     public function rollbackTransaction() {
         $this->getDatabase()->rollBack();
-        //$this->getEntityManager()->getConnection()->rollback();
     }
 
     /**
