@@ -1,0 +1,101 @@
+{capture $paginate}
+	{if $paginator->getPageCount() > 1 }
+<div class="paginator">
+			{if $paginator->isFirst()}
+    <span class="button">« Predchádzajúca</span>
+			{else}
+    <a href="{link page $paginator->page - 1}">« Predchádzajúca</a>
+			{/if}
+
+			{foreach $steps as $step}
+				{if isset($prevStep) && $step - $prevStep > 1}
+    <span>…</span>
+				{/if}
+				{if $step == $paginator->page}
+    <span class="current">{$step}</span>
+				{else}
+    <a href="{link page $step}">{$step}</a>
+				{/if}
+				{? $prevStep = $step }
+			{/foreach}
+
+			{if $paginator->isLast()}
+    <span class="button">Nasledujúca »</span>
+			{else}
+    <a href="{link page $paginator->page + 1}">Nasledujúca »</a>
+			{/if}
+</div>
+	{/if}
+{/block}
+
+{if $filterCounter}
+<div class="form form-filter">
+		{$filter}
+</div>
+{/if}
+
+{$form->render('begin')}
+
+{if $dataGrid->hasToolbar()}
+<div class = "button_toolbar">
+	{foreach $form->getControls() as $submit}
+		{if (get_class($submit) == 'SubmitButton') ||
+			(get_class($submit) == 'ExtSubmitButton')}
+			{$submit->control}
+		{/if}
+
+	{/foreach}
+</div>
+{/if}
+
+<div class="recordstb image-grid">
+	{if $sort}
+    <div class="header">
+        <table border="0" cellpadding="0" cellspacing="1">
+            <thead class="thead">
+                <tr>
+                    <th>&nbsp;Zotriediť podľa:&nbsp;</th>
+					{foreach $sort as $item}
+                    <th
+                        onclick="window.location={link orderby! $item->name};" class="clickable{if $item->sorted} sort{/if}">
+							{$item->label}
+							{if $item->icon}
+                        <img src="{$baseUri}backend/gui/order_{$item->icon}.gif" width="12" height="9" border="0">
+							{/if}
+                    </th>
+					{/foreach}
+                </tr>
+            </thead>
+        </table>
+    </div>
+	{/if}
+	{if $body}
+    <div class="tbody imagegrid-images">
+			{foreach $body as $item}
+        <div class="container"{if $item->ondblclick} ondblclick="window.location={$item->ondblclick};"{/if} title="{$item->label}">
+             <div class="inner">
+						{$item->checkbox}
+                <span class="label">{$item->label|truncate:20}</span>
+                <div class="image-cutter"><div class="image-container">{!$item->content}</div></div>
+						{if $item->lines}
+							{foreach $item->lines as $line}
+                <div class="extra-lines">
+                    <div class="extra-line">{$line->content}</div>
+                </div>
+							{/foreach}
+						{/if}
+            </div>
+        </div>
+			{/foreach}
+        <div class="cleaner">&nbsp;</div>
+    </div>
+	{else}
+    <p class="center"><em>Kritériam vyhľadávania nevyhovuje žiaden obrázok/súbor</em></p>
+	{/if}
+
+</div>
+
+{!$paginate}
+
+{$form->render('end')}
+

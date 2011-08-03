@@ -1,0 +1,61 @@
+<div class="block">
+    {!$control->getControls()->render('begin')}
+
+    <div class="block_head">
+        <div class="bheadl"></div>
+        <div class="bheadr"></div>
+
+	{if isset($title)}<h2>{_$title}</h2>{/if}
+
+	{if $control->hasToolbar()}
+        <ul class="button_toolbar">
+            <li>
+	    {foreach $control->getToolbarButtons() as $button}
+	    {$button->control}
+	    {/foreach}
+            </li>
+        </ul>
+	{/if}
+    </div>
+
+    <div class="block_content">
+        <div class="gridmessage"><span>&nbsp;</span></div>
+
+            {var showPaginator = true}
+            {if $control->buildOnlyWhenFilterSet() and !$control->hasFilterSet()}
+                {var showPaginator = false}
+                <p>{_"Please use filter bellow. No data is displayed without filter set due to performance issues."}</p>
+            {else}
+                {if $control->hasContent()}{$control->getContent()}{else}{$control->getEmptyContent()}{/if}
+            {/if}
+	    
+	    {!$control->getControls()->render('end')}
+
+	    {if $control->hasFilter()}
+        <div class="tableactions">
+            {$control->getFilter()}
+        </div>
+	    {/if}
+
+
+	    {if $showPaginator && $control->isPaginated() and $control->getPaginator()->getPageCount() > 1 }
+        <div class="pagination right">
+	    {if $control->getPaginator()->isFirst()}<span>&laquo;</span>
+	    {else}<a href="{link page $control->getPaginator()->page - 1}">&laquo;</a>{/if}
+
+	    {foreach $control->getPaginatorSteps() as $step}
+		{if isset($prevStep) && $step - $prevStep > 1}<span>…</span>{/if}
+		{if $step == $control->getPaginator()->page}<span class="active">{$step}</span>
+		    {else}<a href="{link page $step}">{$step}</a>{/if}
+		{? $prevStep = $step}
+	    {/foreach}
+
+	    {if $control->getPaginator()->isLast()}<span>&raquo;</span>
+	    {else}<a href="{link page $control->getPaginator()->page + 1}">&raquo;</a>{/if}
+        </div>
+	    {/if}
+    </div>
+
+    <div class="bendl"></div>
+    <div class="bendr"></div>
+</div>
