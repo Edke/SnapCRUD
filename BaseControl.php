@@ -17,7 +17,6 @@ abstract class BaseControl extends \Nette\Application\UI\Control {
      * @var string
      */
     protected $templateFilename;
-
     /**
      * @var DI\Container
      */
@@ -167,13 +166,6 @@ abstract class BaseControl extends \Nette\Application\UI\Control {
             }
         }
         $this->key = md5($this->getPresenter()->getContext()->params['application']['md5Salt'] . implode('|', $parts));
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    public function getEntityManager() {
-        return $this->context->doctrine;
     }
 
     public function createTemplate($class = null) {
