@@ -72,13 +72,21 @@ class NetteDatabase implements IDataFeed {
      * @param string $key
      * @return \Nette\Database\Table\Selection
      */
-    public function getSelection($key = null) {
+    public function getSelection($key = null, $table = null, $setActive = false) {
         if (is_null($key)) {
             $key = $this->active;
         }
+        
+        if ( is_null($table)) {
+            $table = $this->table;
+        }
+        
+        if ( $setActive) {
+            $this->active = $key;
+        }
 
         if (!\key_exists($key, $this->selections)) {
-            $this->selections[$key] = $this->context->database->table($this->table);
+            $this->selections[$key] = $this->context->database->table($table);
         }
         return $this->selections[$key];
     }
