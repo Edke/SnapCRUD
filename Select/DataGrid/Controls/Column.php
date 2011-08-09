@@ -338,6 +338,14 @@ class Column extends \Nette\Object {
     }
 
     /**
+     * Determines whether column is sortable
+     * @return boolean
+     */
+    public function isSortable() {
+        return true && $this->sortable;
+    }
+
+    /**
      * Property setters
      */
 
