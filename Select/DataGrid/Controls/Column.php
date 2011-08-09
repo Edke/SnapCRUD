@@ -28,11 +28,7 @@ class Column extends \Nette\Object {
     /**
      * Aggregate functionality
      */
-    protected $applySum = false, $sum = 0;
-    /**
-     * Casting
-     */
-    protected $cast, $castAlias;
+    public $footerAggregate;
 
     /**
      * Constructor
@@ -216,11 +212,6 @@ class Column extends \Nette\Object {
             $content = $this->getParent()->getContext()->datafeed->getColumnFromRow($data, $this->getName());
         }
 
-        #aggregate functions
-        if ($this->applySum) {
-            $this->sum += $content;
-        }
-
         # helper
         if ($this->bodyContentHelper) {
             if (is_string($this->bodyContentHelper) && $this->getParent()->hasHelper($this->bodyContentHelper)) {
@@ -249,7 +240,7 @@ class Column extends \Nette\Object {
     }
 
     public function getBodyTemplate() {
-        $columnName = $this->hasCast() ? $this->castAlias : $this->getName('safe');
+        $columnName = $this->getName('safe');
         $self = '$control->getColumn("' . $this->getName('safe') . '")';
         $el = Html::el('td');
 
@@ -311,12 +302,6 @@ class Column extends \Nette\Object {
             $content = $this->getParent()->getContext()->datafeed->getColumnFromRow($data, $this->getName());
         }
 
-
-        #aggregate functions
-        if ($this->applySum) {
-            $this->sum += $content;
-        }
-
         # helper
         if ($this->bodyContentHelper) {
             if (is_string($this->bodyContentHelper) && $this->getParent()->hasHelper($this->bodyContentHelper)) {
@@ -341,7 +326,7 @@ class Column extends \Nette\Object {
      * @return boolean
      */
     public function hasFooter() {
-        return $this->footerContent || $this->footerContentCb || $this->applySum;
+        return $this->footerContent || $this->footerContentCb || $this->footerAggregate;
     }
 
     /**
@@ -448,11 +433,11 @@ class Column extends \Nette\Object {
     }
 
     /**
-     * Set footer content to sum of column
+     * Sets aggregate function for footer
      * @return this
      */
-    public function setFooterContentAsSum() {
-        $this->applySum = true;
+    public function setFooterAggregate($aggregate) {
+        $this->footerAggregate = $aggregate;
         return $this;
     }
 
@@ -564,34 +549,6 @@ class Column extends \Nette\Object {
     public function setVisibility($visibility) {
         $this->visibility = $visibility;
         return $this;
-    }
-
-    /**
-     * Sets casting of column
-     * @param string $cast
-     * @param string $castAlias
-     * @return this 
-     */
-    public function setCast($cast, $castAlias) {
-        $this->cast = $cast;
-        $this->castAlias = $castAlias;
-        return $this;
-    }
-
-    /**
-     * Determines whether column has casting defined
-     * @return boolean
-     */
-    public function hasCast() {
-        return $this->cast !== null;
-    }
-
-    /**
-     * Gets formatted casting of column
-     * @return string
-     */
-    public function getCast() {
-        return $this->cast . ' as ' . $this->castAlias;
     }
 
 }
