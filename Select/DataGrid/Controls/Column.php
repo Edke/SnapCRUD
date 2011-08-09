@@ -24,7 +24,7 @@ class Column extends \Nette\Object {
     protected $sortable = true, $headerClasses = array(), $visibility = true;
     public $label;
     public $bodyClasses = array(), $bodyLinkCb, $bodyLinkMask, $bodyLinkModalCb, $bodyOnClickCb, $bodyContentCb, $bodyHtml, $bodyContentHelper, $bodyContent, $bodyTitleCb;
-    protected $footerClasses = array(), $footerContentCb, $footerContent, $footerContentHelper;
+    public $footerClasses = array(), $footerContentCb, $footerContent, $footerContentHelper;
     /**
      * Aggregate functionality
      */
