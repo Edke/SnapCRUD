@@ -98,68 +98,23 @@ class Column extends \Nette\Object {
      * Get class name for current column order state
      * @return string|null
      */
-    protected function getSortOrderClass() {
+    public function getHeaderClass() {
+        $classes = $this->headerClasses;
+        /* $this->headerClasses[] = '<?php '.$self.'->getSortOrderClass();  ?>'; */
+
+
         if (isset($this->getParent()->getContext()->sessionSection->orderBy) &&
                 isset($this->getParent()->getContext()->sessionSection->orderBy->{$this->getName('sql')})) {
             $currentDirection = $this->getParent()->getContext()->sessionSection->orderBy->{$this->getName('sql')};
-            return $this->getParent()->getSortOrderClass($currentDirection);
+
+
+            $classes[] = $this->getParent()->getSortOrderClass($currentDirection);
         }
-        return null;
+        return implode(' ', $classes);
     }
 
-    /**
-     * Get header html
-     * @return Html
-     */
-    public function getHeader() {
-        if ($this->sortable) {
-            $el = Html::el('a');
-            $this->headerClasses[] = $this->getSortOrderClass();
-            $el->href($this->getParent()->link('orderby!', $this->getName('sql')));
-        } else {
-            $el = Html::el('span');
-        }
-
-        foreach ($this->headerClasses as $class) {
-            $el->class($class, true);
-        }
-
-        if ($this->label) {
-            $el->setText($this->getParent()->translate($this->label));
-        } else {
-            $el->setHtml('&nbsp;');
-        }
-        return Html::el('th')->add($el);
-    }
-
-    /**
-     * Get footer html
-     * @return Html
-     */
-    public function getFooter() {
-        $el = Html::el('th');
-
-        foreach ($this->footerClasses as $class) {
-            $el->class($class, true);
-        }
-
-        $content = $this->getFooterContent();
-
-        # helper
-        if ($this->footerContentHelper) {
-            if (is_string($this->footerContentHelper) && $this->getParent()->hasHelper($this->footerContentHelper)) {
-                $content = \call_user_func($this->getParent()->getHelper($this->footerContentHelper), $content);
-            } elseif (\is_callable($this->footerContentHelper)) {
-                $content = \call_user_func($this->footerContentHelper, $content);
-            } else {
-                throw new \Exception("Invalid content helper '" . $this->footerContentHelper . "'");
-            }
-        }
-
-        # add to element
-        $el->setHtml($content);
-
-        return $el;
+    public function getFooterClass() {
+        return $this->footerClasses ? ' class="' . implode(' ', $this->footerClasses) . '"' : '';
     }
 
     /**
@@ -167,17 +122,7 @@ class Column extends \Nette\Object {
      * @return mixed
      */
     public function getFooterContent() {
-        # content
-        if ($this->footerContent) {
-            $content = $this->footerContent;
-        } elseif ($this->footerContentCb) {
-            $content = \call_user_func($this->footerContentCb, $this->getParent());
-        } elseif ($this->applySum) {
-            $content = $this->sum;
-        } else {
-            $content = '&nbsp;';
-        }
-        return $content;
+        return $this->footerContent;
     }
 
     /**
