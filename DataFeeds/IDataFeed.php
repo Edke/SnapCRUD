@@ -44,4 +44,6 @@ interface IDataFeed {
     public function setPrimaryKey($pk);
     
     public function getColumnFromRow($row, $column);
+    
+    public function getAggregate($columns);
 }

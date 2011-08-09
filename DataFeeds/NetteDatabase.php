@@ -286,4 +286,18 @@ class NetteDatabase implements IDataFeed {
         return $row->{$column};
     }
 
+    
+    /**
+     * Gets aggregated row
+     * @param array $columns 
+     */
+    public function getAggregate($columns) {
+        $select = array();
+        foreach($columns as $column => $function) {
+            $select[] = sprintf('%s(%s) as %s', $function, $column, $column);
+        }
+        
+        $query = "SELECT " . implode(', ', $select) . ' FROM ('. $this->getSelection()->getSql() .' ) as t';
+        return $this->context->database->fetch($query);
+    }
 }
