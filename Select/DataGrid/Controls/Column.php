@@ -21,7 +21,8 @@ class Column extends \Nette\Object {
      * Properties
      */
     protected $width;
-    protected $sortable = true, $headerClasses = array(), $label, $visibility = true;
+    protected $sortable = true, $headerClasses = array(), $visibility = true;
+    public $label;
     public $bodyClasses = array(), $bodyLinkCb, $bodyLinkMask, $bodyLinkModalCb, $bodyOnClickCb, $bodyContentCb, $bodyHtml, $bodyContentHelper, $bodyContent, $bodyTitleCb;
     protected $footerClasses = array(), $footerContentCb, $footerContent, $footerContentHelper;
     /**
