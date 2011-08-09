@@ -147,58 +147,69 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                             ->data('autorefresh-signal', $this->autorefreshSignal)
                             ->data('autorefresh-interval', $this->autorefreshInterval)->startTag();
 
+            # 1st iteration, header and colgroup
             $colgroup = Html::el('colgroup');
-            $header = Html::el('thead');
-            $_header = $header->create('tr');
-            $footer = Html::el('tfoot');
-            $_footer = $footer->create('tr');
+            $header = Html::el('tr');
+            $footer = Html::el('tr');
             $first = true;
             $hasFooter = false;
-            $casting = array();
+            $aggregate = array();
             foreach ($this->getColumns() as $column) {
-
-                # collecting cast
-                if ($column->hasCast()) {
-                    $casting[] = $column->getCast();
-                }
-
                 # collecting headers, footers
                 if ($column->isVisible()) {
                     if ($first && $this->hasCheckboxes()) {
                         $first = false;
                         $colgroup->add(Html::el('col')->width(30));
-                        $_header->add(Html::el('th')->class('control')->add(Html::el('input')->type('checkbox')->class('checkbox_selectall')));
-                        $_footer->add(Html::el('th')->setHtml('&nbsp;'));
+                        $header->add(Html::el('th')->class('control')->add(Html::el('input')->type('checkbox')->class('checkbox_selectall')));
+                        $footer->add(Html::el('th')->setHtml('&nbsp;'));
                     }
                     $colgroup->add($column->getCol());
-                    $_header->add($column->getHeader());
-                    $_footer->add($column->getFooter());
+
+                    # header
+                    $text = $column->label ? $this->translate($column->label) : '&nbsp;';
+                    if ($column->isSortable()) {
+                        $header->add(sprintf('<th class="<?= $control->getColumn("%s")->getHeaderClass(); ?>"><a href="%s">%s</a></th>', $column->getName('safe'), $this->link('orderby!', $column->getName('sql')), $text));
+                    } else {
+                        $header->add(sprintf('<th class="%s"><span>%s</span></th>', $column->getHeaderClass(), $text));
+                    }
                     if ($column->hasFooter()) {
                         $hasFooter = true;
+                        $aggregate[$column->getName('sql')] = $column->footerAggregate;
                     }
                 }
             }
-
-            # modifying selection
-            if (count($casting)) {
-                $code[] = '<?php
-$control->context->datafeed->getSelection()->select("*, ' . implode(', ', $casting) . '"); ?>';
+            $code[] = $colgroup;
+            $code[] = Html::el('thead')->add($header);
+            
+            # 2nd iteration, footer
+            if ($hasFooter) {
+                $args = array();
+                foreach($aggregate as $_column => $function) {
+                    $args[] = "\"$_column\" => \"$function\"";
+                }
+                $code[] = '<?php $footer = $control->context->datafeed->getAggregate(array( '. implode(',', $args).' )); ?>';
+                
+                foreach ($this->getColumns() as $column) {
+                    
+                    $content = '&nbsp;';
+                    if ( $column->hasFooter()) {
+                        if ($column->getFooterContent() ) {
+                            $content = $column->getFooterContent();
+                        }
+                        elseif(is_callable($column->footerContentCb)) {
+                            $content = '<?= \call_user_func($control->getColumn("'.$column->getName().'")->footerContentCb, $control); ?>';
+                        }
+                        elseif($column->footerAggregate) {
+                            $content = '<?= $footer->'.$column->getName().' ?>';
+                        }
+                    }
+                    $footer->add(sprintf("<th%s>%s</th>\n", 
+                                $column->getFooterClass(),
+                                $content));
+                }
+                $code[] = Html::el('tfoot')->add($footer);
             }
 
-            # setting selector
-            /*            $code[]= '<?php
-              $control->context->datafeed->getSelection()->select("'. implode(',', $columns ) .'"); ?>'; */
-
-            # body content from rows
-            #foreach ($this->getRows() as $row) {
-            #$body->add($row->getHtml());
-            #}
-            #if ($hasFooter) {
-            #    $this->content->add($footer);
-            #}
-
-            $code[] = $colgroup;
-            $code[] = $header;
             $code[] = '<tbody>';
             $code[] = '<?php 
         $iterator = 0;
