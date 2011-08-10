@@ -144,7 +144,7 @@ class NetteDatabase implements IDataFeed {
         if (isset($this->itemName)) {
             if (is_string($this->itemName)) {
                 $primaryKey = $this->getDatabase()->databaseReflection->getPrimary($this->table);
-                $selection = clone $this->getSelection();
+                $selection = clone $this->getSelection('master');
                 $row = $selection
                         ->select($this->itemName)
                         ->where($primaryKey . ' = ?', $id)
