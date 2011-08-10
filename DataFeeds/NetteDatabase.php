@@ -183,30 +183,50 @@ class NetteDatabase implements IDataFeed {
         if (!($values instanceof \stdClass or $values instanceof \Nette\ArrayHash)) {
             throw new \InvalidArgumentException();
         }
+        
+        $meta = array();
+        foreach($this->getDatabase()->query("
+                    SELECT attname, typname, typlen
+                    FROM pg_attribute, pg_class, pg_type 
+                    WHERE pg_class.oid = attrelid
+                        AND atttypid=pg_type.oid
+                        AND attnum>0 AND relname = ?", $this->table) as $row) {
+            $meta[$row->attname] = $row;
+        }
 
         if ($id > 0) {
             $row = $this->getSelection()->get($id);
-            foreach ($values as $key => $value) {
-                if ($row->offsetExists($key)) {
-                    $row->offsetSet($key, $value);
+            # update row values
+            foreach ($values as $column => $value) {
+                if ($row->offsetExists($column)) {
+                    $row->offsetSet($column, $this->normalizeRow($value, $meta[$column]->typname));
                 }
             }
             $row->update();
         } else {
             $insert = array();
-            foreach ($this->getDatabase()->query("
-                    SELECT attname 
-                    FROM pg_attribute, pg_class 
-                    WHERE pg_class.oid = attrelid
-                        AND attnum>0 AND relname = ?", $this->table) as $column) {
-
-                if (isset($values[$column->attname])) {
-                    $insert[$column->attname] = $values[$column->attname];
+            # filter values
+            foreach($values as $column => $value) {
+                if ( key_exists($column, $meta)) {
+                    $insert[$column] = $this->normalizeRow($value, $meta[$column]->typname);
                 }
             }
             $row = $this->getSelection()->insert($insert);
         }
         return $row;
+    }
+    
+    /**
+     * Normalizes value
+     * @param mixed $value
+     * @param string $type
+     * @return mixed
+     */
+    private function normalizeRow($value, $type) {
+        if ($value === '') {
+            $value = null;
+        }
+        return $value;
     }
 
     /**
