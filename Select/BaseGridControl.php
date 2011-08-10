@@ -753,7 +753,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @return Condition
      */
     public function addConditionCb($callback) {
-        $condition = new Condition($this);
+        $condition = new Controls\Condition($this);
         $condition->setCallback($callback);
         $this->conditions[] = $condition;
         return $condition;
