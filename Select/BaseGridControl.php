@@ -292,7 +292,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @return array
      */
     public function getSearchValues() {
-        return $this->context->sessionSection->search;
+        $search = $this->context->sessionSection->search;
+        return $search instanceof \Nette\ArrayHash && count($search) ? $search : array();
     }
 
     /**
