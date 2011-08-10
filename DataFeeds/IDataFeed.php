@@ -45,5 +45,5 @@ interface IDataFeed {
     
     public function getColumnFromRow($row, $column);
     
-    public function getAggregate($columns);
+    public function aggregation($function);
 }

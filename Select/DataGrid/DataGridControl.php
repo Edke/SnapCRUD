@@ -174,33 +174,23 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                     }
                     if ($column->hasFooter()) {
                         $hasFooter = true;
-                        $aggregate[$column->getName('sql')] = $column->footerAggregate;
                     }
                 }
             }
             $code[] = $colgroup;
             $code[] = Html::el('thead')->add($header);
-            
+
             # 2nd iteration, footer
             if ($hasFooter) {
-                $args = array();
-                foreach($aggregate as $_column => $function) {
-                    $args[] = "\"$_column\" => \"$function\"";
-                }
-                $code[] = '<?php $footer = $control->context->datafeed->getAggregate(array( '. implode(',', $args).' )); ?>';
-                
                 foreach ($this->getColumns() as $column) {
-                    
                     $content = '&nbsp;';
                     if ( $column->hasFooter()) {
                         if ($column->getFooterContent() ) {
                             $content = $column->getFooterContent();
-                        }
-                        elseif(is_callable($column->footerContentCb)) {
-                            $content = '<?= \call_user_func($control->getColumn("'.$column->getName().'")->footerContentCb, $control); ?>';
-                        }
-                        elseif($column->footerAggregate) {
-                            $content = '<?= $footer->'.$column->getName().' ?>';
+                        } elseif (is_callable($column->footerContentCb)) {
+                            $content = '<?= \call_user_func($control->getColumn("' . $column->getName() . '")->footerContentCb, $control); ?>';
+                        } elseif ($column->footerAggregate) {
+                            $content = '<?= $control->context->datafeed->aggregation("'. $column->footerAggregate. '");?>';
                         }
                     }
                     $footer->add(sprintf("<th%s>%s</th>\n", 
