@@ -154,6 +154,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
             $first = true;
             $hasFooter = false;
             $aggregate = array();
+            $casting = array();
             foreach ($this->getColumns() as $column) {
                 # collecting headers, footers
                 if ($column->isVisible()) {
@@ -164,6 +165,11 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                         $footer->add(Html::el('th')->setHtml('&nbsp;'));
                     }
                     $colgroup->add($column->getCol());
+                    
+                    # collecting cast
+                    if ($column->hasCast()) {
+                        $casting[] = $column->getCast();
+                    }
 
                     # header
                     $text = $column->label ? $this->translate($column->label) : '&nbsp;';
@@ -199,6 +205,10 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                 }
                 $code[] = Html::el('tfoot')->add($footer);
             }
+            
+            if (count($casting)) {
+                $code[] = '<?php $control->context->datafeed->getSelection()->select("*, ' . implode(', ', $casting) . '"); ?>';
+            }            
 
             $code[] = '<tbody>';
             $code[] = '<?php 

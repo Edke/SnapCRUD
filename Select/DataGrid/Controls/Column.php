@@ -29,6 +29,10 @@ class Column extends \Nette\Object {
      * Aggregate functionality
      */
     public $footerAggregate;
+    /**
+     * Casting
+     */
+    protected $cast, $castAlias;
 
     /**
      * Constructor
@@ -185,7 +189,7 @@ class Column extends \Nette\Object {
     }
 
     public function getBodyTemplate() {
-        $columnName = $this->getName('safe');
+        $columnName = $this->hasCast() ? $this->castAlias : $this->getName('safe');
         $self = '$control->getColumn("' . $this->getName('safe') . '")';
         $el = Html::el('td');
 
@@ -502,6 +506,34 @@ class Column extends \Nette\Object {
     public function setVisibility($visibility) {
         $this->visibility = $visibility;
         return $this;
+    }
+
+    /**
+     * Sets casting of column
+     * @param string $cast
+     * @param string $castAlias
+     * @return this 
+     */
+    public function setCast($cast, $castAlias) {
+        $this->cast = $cast;
+        $this->castAlias = $castAlias;
+        return $this;
+    }
+
+    /**
+     * Determines whether column has casting defined
+     * @return boolean
+     */
+    public function hasCast() {
+        return $this->cast !== null;
+    }
+
+    /**
+     * Gets formatted casting of column
+     * @return string
+     */
+    public function getCast() {
+        return $this->cast . ' as ' . $this->castAlias;
     }
 
 }
