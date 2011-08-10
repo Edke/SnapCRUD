@@ -190,8 +190,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
             if ($hasFooter) {
                 foreach ($this->getColumns() as $column) {
                     $content = '&nbsp;';
-                    if ( $column->hasFooter()) {
-                        if ($column->getFooterContent() ) {
+                    if ($column->hasFooter()) {
+                        if ($column->getFooterContent()) {
                             $content = $column->getFooterContent();
                         } elseif (is_callable($column->footerContentCb)) {
                             $content = '<?= \call_user_func($control->getColumn("' . $column->getName() . '")->footerContentCb, $control); ?>';
@@ -199,9 +199,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                             $content = '<?= $control->context->datafeed->aggregation("'. $column->footerAggregate. '");?>';
                         }
                     }
-                    $footer->add(sprintf("<th%s>%s</th>\n", 
-                                $column->getFooterClass(),
-                                $content));
+                    $footer->add(sprintf("<th%s>%s</th>\n", $column->getFooterClass(), $content));
                 }
                 $code[] = Html::el('tfoot')->add($footer);
             }
