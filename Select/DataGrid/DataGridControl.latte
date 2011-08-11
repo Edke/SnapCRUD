@@ -1,46 +1,47 @@
-<div class="block">
-    {!$control->getControls()->render('begin')}
+<div class="module">  
+    <h2 n:if="isset($title)" class="moduleHead">{_$title}</h2>
 
-    <div class="block_head">
-        <div class="bheadl"></div>
-        <div class="bheadr"></div>
+    {!$control->getForm()->render('begin')}
 
-	{if isset($title)}<h2>{_$title}</h2>{/if}
-
-	{if $control->hasToolbar()}
-        <ul class="button_toolbar">
-            <li>
-	    {foreach $control->getToolbarButtons() as $button}
+    <!-- toolbar -->
+    <div n:if="$control->hasToolbar()" class="dxtoolbar">
+	    {foreach $control->getToolbar()->getControls() as $button}
 	    {$button->control}
 	    {/foreach}
-            </li>
-        </ul>
-	{/if}
     </div>
 
-    <div class="block_content">
-        <div class="gridmessage"><span>&nbsp;</span></div>
+    <!-- datagrid -->
+    <div class="datagridBox">
 
-            {var showPaginator = true}
-            {if $control->buildOnlyWhenFilterSet() and !$control->hasFilterSet()}
-                {var showPaginator = false}
-                <p>{_"Please use filter bellow. No data is displayed without filter set due to performance issues."}</p>
-            {else}
-                {if $control->hasContent()}{$control->getContent()}{else}{$control->getEmptyContent()}{/if}
-            {/if}
-	    
-	    {!$control->getControls()->render('end')}
-
-	    {if $control->hasFilter()}
-        <div class="tableactions">
-            {$control->getFilter()}
+        <!-- datagrid gridmessage -->	
+        <div class="gridmessage"><span></span></div>
+        <!-- datagrid search -->
+        <div n:if="$control->hasSearch()" class="search">
+            <a class="searchButton">{_"Search options"}</a>
+            <span>{_"Current search options:"}</span>
+            <div class="searchForm">
+                <div class="form">
+                        <table> 
+                            <tr n:foreach="$control->getSearchControls()->getControls() as $search"><th>{$search->getLabel()}</th><td>{$search->getControl()}</td></tr>
+                            <tr><th></th><td>{foreach $control->getSearchSubmits()->getControls() as $submit}{$submit->getControl()}{/foreach}</td></tr>
+                        </table>
+                </div>
+            </div>
         </div>
-	    {/if}
+        <!-- datagrid -->
 
+        {var showPaginator = true}
+        {if $control->buildOnlyWhenSearchSet() and !$control->hasSearchSet()}
+        {var showPaginator = false}
+        <p>{_"Please use search options. No data is displayed without search set due to performance issues."}</p>
+        {else}
+        {if $control->hasContent()}{!$control->getContent()}{else}{$control->getEmptyContent()}{/if}
+        {/if}
 
-	    {if $showPaginator && $control->isPaginated() and $control->getPaginator()->getPageCount() > 1 }
-        <div class="pagination right">
-	    {if $control->getPaginator()->isFirst()}<span>&laquo;</span>
+        <!-- pagination -->
+        <div n:if="$showPaginator && $control->isPaginated() and $control->getPaginator()->getPageCount() > 1" class="pagination">
+
+            {if $control->getPaginator()->isFirst()}<span>&laquo;</span>
 	    {else}<a href="{link page $control->getPaginator()->page - 1}">&laquo;</a>{/if}
 
 	    {foreach $control->getPaginatorSteps() as $step}
@@ -52,10 +53,9 @@
 
 	    {if $control->getPaginator()->isLast()}<span>&raquo;</span>
 	    {else}<a href="{link page $control->getPaginator()->page + 1}">&raquo;</a>{/if}
-        </div>
-	    {/if}
-    </div>
 
-    <div class="bendl"></div>
-    <div class="bendr"></div>
+        </div>
+    </div>
+    {!$control->getForm()->render('end')}
 </div>
+<div class="cleaner">&nbsp;</div>
