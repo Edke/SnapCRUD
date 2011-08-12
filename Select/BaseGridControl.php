@@ -22,7 +22,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      */
     protected $useSort = true, $useSingleColumnSort = true, $usePaginator = true, $defaultOrderByCounter = 0,
     $defaultOrderByAscClass = 'headerSortUp', $defaultOrderByDescClass = 'headerSortDown',
-    $autorefreshSignal, $autorefreshInterval, $buildOnlyWhenSearchSet = false;
+    $autorefreshSignal, $autorefreshInterval, $buildOnlyWhenSearchSet = false, $checkboxesContainer;
     /**
      * Core
      */
@@ -130,6 +130,14 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     }
 
     /**
+     * Gets datafeed
+     * @return \SnapCRUD\DataFeeds\IDataFeed 
+     */
+    public function getDatafeed() {
+        return $this->context->datafeed;
+    }
+
+    /**
      * Controls form
      */
 
@@ -174,7 +182,6 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
             $this->form->setTranslator($this->context->translator);
             $this->form->addContainer('toolbar');
             $this->form->addContainer('searchControls');
-            $this->form->addContainer('checkboxes');
 
             $presenter = $this->getPresenter();
             $grid = $this;
@@ -230,7 +237,11 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @return \Nette\Forms\Container
      */
     public function getCheckboxes() {
-        return $this->getForm()->offsetGet('checkboxes');
+        $container = $this->checkboxesContainer . 'checkboxes';
+        if (!$this->getForm()->offsetExists($container)) {
+            $this->getForm()->addContainer($container);
+        }
+        return $this->getForm()->offsetGet($container);
     }
 
     /**
@@ -516,13 +527,12 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     }
 
     /**
-     * Set custom controls form
-     * @param Form $controls
+     * Sets custom form
+     * @param Form $form
      * @return this
      */
-    public function setControls(Form $controls) {
-        throw new \Nette\NotSupportedException();
-        $this->controls = $controls;
+    public function setForm(Form $form) {
+        $this->form = $form;
         return $this;
     }
 
@@ -643,13 +653,12 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     }
 
     /**
-     * Set group name for control's checkboxes
-     * @param string $name
+     * Set checkboxes container preffix
+     * @param string $container
      * @return this
      */
-    public function setCheckboxesGroup($name) {
-        throw new \Nette\NotSupportedException();
-        $this->checkboxesGroup = $name;
+    public function setCheckboxesContainer($container) {
+        $this->checkboxesContainer = $container;
         return $this;
     }
 

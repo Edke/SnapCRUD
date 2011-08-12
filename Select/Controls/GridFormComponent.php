@@ -32,11 +32,8 @@ class GridFormComponent extends \Nette\Forms\Controls\Checkbox {
      * @return GridFormComponent
      */
     public static function addGrid(\Nette\Forms\Container $form, $name, $label, $grid) {
-        $grid->setControls($form);
-        $currentGroup = $form->getCurrentGroup();
-        if ($currentGroup) {
-            $grid->setCheckboxesGroup($currentGroup->getOption('label'));
-        }
+        $grid->setForm($form);
+        $grid->setCheckboxesContainer($label);      
         return $form[$name] = new self($label, $grid);
     }
 
