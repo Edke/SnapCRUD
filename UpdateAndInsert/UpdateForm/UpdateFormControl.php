@@ -8,7 +8,7 @@ namespace SnapCRUD\UpdateAndInsert\UpdateForm;
  * @author	Eduard Kracmar <kracmar@dannax.sk>
  * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  */
-class UpdateFormControl extends BaseGridFormControl {
+class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
     const STATE_EDIT = 'edit';
     const STATE_UPDATE = 'update';
 
@@ -28,9 +28,9 @@ class UpdateFormControl extends BaseGridFormControl {
 
         # state
         if (!$this->getForm()->isSubmitted()) {
-            $this->state = GridUpdateFormControl::STATE_EDIT;
+            $this->state = UpdateFormControl::STATE_EDIT;
         } elseif ($this->getForm()->isSubmitted()) {
-            $this->state = GridUpdateFormControl::STATE_UPDATE;
+            $this->state = UpdateFormControl::STATE_UPDATE;
         } else {
             throw new Exception('Unable to determine state');
         }
@@ -51,7 +51,7 @@ class UpdateFormControl extends BaseGridFormControl {
     }    
 
     public function setDefaultValues() {
-        if ($this->state == GridFormControl::STATE_EDIT) {
+        if ($this->state == UpdateFormControl::STATE_EDIT) {
             $defaults = new \Nette\ArrayHash();
             $this->onEdit(&$defaults);
             $this->getForm()->setDefaults((array) $defaults);
