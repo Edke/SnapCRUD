@@ -305,7 +305,7 @@ class Column extends \Nette\Object {
      * @return this
      */
     public function addCondition($query) {
-        $this->conditions[] = new Condition($this, $query);
+        $this->conditions[] = new \SnapCRUD\Select\Controls\Condition($this, $query);
         return $this;
     }
 
