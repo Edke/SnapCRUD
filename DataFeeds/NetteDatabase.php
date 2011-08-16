@@ -279,7 +279,7 @@ class NetteDatabase implements IDataFeed {
                 }
             }
             if (count($valid)) {
-                $counter = $this->getSelection()->where($this->primaryKey . ' = ?', $valid)->delete();
+                $counter = $this->getSelection()->where($this->primaryKey, $valid)->delete();
             }
             return $counter;
         } catch (\PDOException $e) {
