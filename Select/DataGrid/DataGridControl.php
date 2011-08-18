@@ -172,7 +172,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                     }
 
                     # header
-                    $text = $column->label ? $this->translate($column->label) : '&nbsp;';
+                    $text = $column->label ? '<?= _("'.$column->label.'");?>' : '&nbsp;';
                     if ($column->isSortable()) {
                         $header->add(sprintf('<th class="<?= $control->getColumn("%s")->getHeaderClass(); ?>"><a href="%s">%s</a></th>', $column->getName('safe'), $this->link('orderby!', $column->getName('sql')), $text));
                     } else {
