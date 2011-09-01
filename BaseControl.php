@@ -165,7 +165,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control {
                 $parts[] = $arg;
             }
         }
-        $this->key = md5($this->getPresenter()->getContext()->params['application']['md5Salt'] . implode('|', $parts));
+        return md5($this->getPresenter()->getContext()->params['application']['md5Salt'] . implode('|', $parts));
     }
 
     public function createTemplate($class = null) {
