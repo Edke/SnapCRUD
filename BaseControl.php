@@ -51,6 +51,11 @@ abstract class BaseControl extends \Nette\Application\UI\Control {
         $this->context->addService('sessionSection', function() use ($control, $context) {
                     return $control->createServiceSessionSection($context);
                 });
+                
+        # lazy cacheStorage
+        $this->context->addService('cacheStorage', function() use ($context) {
+                    return $context->cacheStorage;
+                });                                
 
         # lazy translator
         if ($context->hasService('translator')) {
