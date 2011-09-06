@@ -38,7 +38,7 @@ class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
 
     public function createComponentForm() {
         $form = parent::createComponentForm();
-        
+
         $form->setCurrentGroup();
 
         $form->addSubmit('apply', _('Update'))
@@ -48,7 +48,7 @@ class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
                         ->setValidationScope(FALSE)
                 ->onClick[] = array($this, 'form_onCancel');
         return $form;
-    }    
+    }
 
     public function setDefaultValues() {
         if ($this->state == UpdateFormControl::STATE_EDIT) {
@@ -68,13 +68,12 @@ class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
      */
     public function form_onCancel(\Nette\Forms\Controls\SubmitButton $button) {
         $this->getPresenter()->flashMessage('Record updating was canceled, record was not modified.', 'warning');
-
+        
         #gridBacklink handling
-        $gridBacklink = (integer) $this->getPresenter()->getNamespace()->gridBacklink;
-        //$backlink = $this->getApplication()->storeRequest();
-
-        if ($gridBacklink > 0) {
-            $this->getPresenter()->redirect($this->gridAction, $gridBacklink);
+        $backlink = $this->getPresenter()->getParam('_bl');
+        if ($backlink) {
+            $this->getPresenter()->_bl = '';
+            $this->getPresenter()->restoreBacklink($backlink);
         } else {
             $this->getPresenter()->redirect($this->gridAction);
         }
@@ -93,11 +92,12 @@ class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
         $this->context->datafeed->commitTransaction();
 
         $this->getPresenter()->flashMessage('Record was successfully updated.', 'ok');
-
+        
         #gridBacklink handling
-        $gridBacklink = (integer) $this->getPresenter()->getNamespace()->gridBacklink;
-        if ($gridBacklink > 0) {
-            $this->getPresenter()->redirect($this->gridAction, $gridBacklink);
+        $backlink = $this->getPresenter()->getParam('_bl');
+        if ($backlink) {
+            $this->getPresenter()->_bl = '';
+            $this->getPresenter()->restoreBacklink($backlink);
         } else {
             $this->getPresenter()->redirect($this->gridAction);
         }
