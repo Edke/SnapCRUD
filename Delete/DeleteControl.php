@@ -52,10 +52,11 @@ class DeleteControl extends \SnapCRUD\BaseControl {
 
         $text = \nt("Selected record", count($this->rows));
         $form->addGroup($text);
+        $container = $form->addContainer('rows');
         $defaults = array();
         foreach ($this->rows as $value) {
-            $form->addCheckbox((string) $value, $this->context->datafeed->getItemName($value));
-            $defaults[$value] = true;
+            $container->addCheckbox((string) $value, $this->context->datafeed->getItemName($value));
+            $defaults['rows'][$value] = true;
         }
         $form->setCurrentGroup();
 
@@ -68,6 +69,20 @@ class DeleteControl extends \SnapCRUD\BaseControl {
         $form->setDefaults($defaults);
 
         return $form;
+    }
+
+    /**
+     * Gets selected rows to be deleted
+     * @return array
+     */
+    public function getSelectedRows() {
+        $result = array();
+        foreach ($this->getForm()->getComponent('rows')->getControls() as $control) {
+            if ($control->getValue() == true) {
+                $result[] = $control->getName();
+            }
+        }
+        return $result;
     }
 
     /**
@@ -120,7 +135,7 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      * @param \Nette\Forms\Controls\SubmitButton $button
      */
     public function onDelete(\Nette\Forms\Controls\SubmitButton $button) {
-        $values = (object) $button->getForm()->getValues();
+        $values = (object) $button->getForm()->getComponent('rows')->getValues();
 
         $this->onBefore(&$values);
 
