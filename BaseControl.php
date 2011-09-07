@@ -98,6 +98,8 @@ abstract class BaseControl extends \Nette\Application\UI\Control {
                     });
         }
 
+        $this->context->params['wwwDir'] = $context->params['wwwDir'];
+        
         return $this;
     }
 
