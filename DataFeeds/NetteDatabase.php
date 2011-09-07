@@ -185,12 +185,21 @@ class NetteDatabase implements IDataFeed {
         }
         
         $meta = array();
+        if (preg_match('#^([^.]+)\.([^.]+)$#', $this->table, $matches)) {
+            $schema = $matches[1];
+            $table = $matches[2];
+        }
+        else {
+            $schema = 'public';
+            $table = $this->table;
+        }
         foreach($this->getDatabase()->query("
                     SELECT attname, typname, typlen
-                    FROM pg_attribute, pg_class, pg_type 
+                    FROM pg_attribute, pg_class, pg_type, pg_namespace 
                     WHERE pg_class.oid = attrelid
+                        AND pg_namespace.oid = pg_class.relnamespace
                         AND atttypid=pg_type.oid
-                        AND attnum>0 AND relname = ?", $this->table) as $row) {
+                        AND attnum>0 AND relname = ? AND nspname = ?", $table, $schema) as $row) {
             $meta[$row->attname] = $row;
         }
 
