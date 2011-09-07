@@ -25,6 +25,7 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      * @var array
      */
     protected $rows;
+    protected $unlinkQueue = array();
 
     /**
      * @return \Nette\Application\UI\Form 
@@ -151,6 +152,37 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      */
     public function setReturningAction($action) {
         $this->returningAction = $action;
+    }
+
+    /**
+     * Add file to unlink queue
+     * @param mixed $file 
+     */
+    public function addFileToUnlink($files) {
+        if (is_string($files)) {
+            $files = array($filse);
+        }
+
+        foreach ($files as $file) {
+            # relative
+            if (preg_match('#^[^/]#', $file)) {
+                $file = $this->context->params['wwwDir'] . '/' . $file;
+            }
+            $this->unlinkQueue[] = $file;
+        }
+    }
+
+    /**
+     * Unlink queue
+     * @return void
+     */
+    public function unlinkQueue() {
+        foreach ($this->unlinkQueue as $file) {
+            $res = unlink($file);
+            if ($res === false) {
+                error_log(date('[Y-m-d H:i:s] ') . "Unable to delete file ($file).\n", 3, Nette\Diagnostics\Debugger::$logDirectory . 'backend.log');
+            }
+        }
     }
 
 }
