@@ -318,7 +318,11 @@ class NetteDatabase implements IDataFeed {
     public function getColumnFromRow($row, $column) {
         return $row->{$column};
     }
-
+    
+    
+    public function getRow($id) {
+        return $this->getSelection()->get($id);
+    }
     
     /**
      * Executes aggregation
