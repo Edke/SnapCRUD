@@ -2,6 +2,8 @@
 
 namespace SnapCRUD\UpdateAndInsert;
 
+use DannaxTools\File;
+
 /**
  * BaseFormControl
  *
@@ -117,6 +119,55 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
 
     public function setTitle($title) {
         $this->template->title = $title;
+    }
+
+    /**
+     * @param \Nette\Forms\AppFile $file
+     */
+    protected function handleFile($control, $current) {
+        if ($control->getDestPath() == '') {
+            throw new \InvalidArgumentException("Path is not defined for (" . $control->getName() . ").");
+        }
+
+        $base = $control->getBase() ? $control->getBase() : realpath($this->context->params['wwwDir']) . DIRECTORY_SEPARATOR;
+        $full = $base . $control->getDestPath();
+
+        $file = $control->getValue();
+
+        # delete current
+        if ($file instanceof \Nette\Web\UploadedFile && $file->getUnlink() && $current) {
+            \unlink($base . $current);
+            return null;
+        }
+        # unchanged
+        elseif ($file instanceof \Nette\Web\UploadedFile && $file->getUnlink() === false && $current) {
+            return $file->name;
+        }
+        # uploaded new file, replace or add
+        elseif (get_class($file) == 'Nette\Http\FileUpload' && $file->size > 0) {
+            // replace, unlink current
+            if ($current) {
+                \unlink($base . $current);
+            }
+
+            // add new
+            $dest = File::findSafeDestination($full . DIRECTORY_SEPARATOR . $file->name);
+            $file->move($dest);
+
+            if (\Nette\Utils\Strings::startsWith($dest, $base)) {
+                return substr($dest, strlen($base));
+            } else {
+                throw new \InvalidArgumentException('Destination lookup failed.');
+            }
+        }
+        # null
+        elseif (get_class($file) == 'Nette\Http\FileUpload' && $file->getError() == \UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        # unknown case
+        else {
+            throw new \LogicException('invalid case');
+        }
     }
 
 }

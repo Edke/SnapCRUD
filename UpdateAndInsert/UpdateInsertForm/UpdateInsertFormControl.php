@@ -141,13 +141,23 @@ class UpdateInsertFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl 
         $this->context->datafeed->beginTransaction();
 
         if ($id > 0) {
+            $current = $this->context->datafeed->getRow($id);
             $this->onBeforeUpdate(&$values);
         } else {
+            $current = $this->context->datafeed->getEmptyValues();
             $this->onBeforeInsert(&$values);
         }
         $this->onBeforeSave(&$values);
         if ($this->getForm()->hasErrors())
             return;
+        
+        # fileapp processing
+        foreach($values as $key => $value) {
+            $control = $button->getForm()->getComponent($key);
+            if ( $control instanceof \Nette\Forms\AppFile) {
+                $values[$key] = $this->handleFile($control, !isset($current->$key) ? null : $current->$key);
+            }
+        }
 
         $result = $this->context->datafeed->save($values, $id);
 
