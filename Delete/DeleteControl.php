@@ -30,16 +30,24 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      * @return \Nette\Application\UI\Form 
      */
     public function createComponentForm() {
-        $this->rows = $this->getPresenter()->getNamespace()->delete;
-        if (!is_array($this->rows)) {
-            throw new \Exception('invalid rows for delete');
-        }
-
         $text = \nt("Deleting of record", count($this->rows));
         $this->getPresenter()->getWorkFlow()->add($text);
 
         $form = new \Nette\Application\UI\Form($this, 'form');
         $form->setTranslator($this->context->translator);
+
+        $form->addHidden('key');
+        $key = $this->getPresenter()->getParam('sl');
+        if ($key == null) {
+            $key = $form['key']->getValue();
+        } else {
+            $form['key']->setValue($key);
+        }
+        $this->rows = $this->getPresenter()->restoreValues($key);
+        if ($this->rows == null) {
+            $this->getPresenter()->flashMessage('Unable to restore delete rows.', 'warning');
+            $this->getPresenter()->redirect('default');
+        }
 
         $text = \nt("Selected record", count($this->rows));
         $form->addGroup($text);
@@ -100,14 +108,10 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      * @param \Nette\Forms\Controls\SubmitButton $button
      */
     public function onCancel(\Nette\Forms\Controls\SubmitButton $button) {
-        unset($this->getPresenter()->getNamespace()->delete);
+        $this->getPresenter()->destroyValues($this->getForm()->getComponent('key')->getValue());
         $this->getPresenter()->flashMessage('Deleting of records has been canceled.', 'warning');
 
-        #backlink handling
-        $lastId = $this->getPresenter()->getNamespace()->lastId;
-        if ($lastId) {
-            $this->getPresenter()->redirect($this->returningAction, $lastId);
-        }
+        # TODO backlink handling
         $this->getPresenter()->redirect($this->returningAction);
     }
 
@@ -134,12 +138,9 @@ class DeleteControl extends \SnapCRUD\BaseControl {
             $message = \nt("Selected record was successfully deleted.", $result);
             $this->getPresenter()->flashMessage($message, 'error');
         }
+        $this->getPresenter()->destroyValues($this->getForm()->getComponent('key')->getValue());
 
-        #backlink handling
-        $lastId = $this->getPresenter()->getNamespace()->lastId;
-        if ($lastId) {
-            $this->getPresenter()->redirect($this->returningAction, $lastId);
-        }
+        # TODO backlink handling
         $this->getPresenter()->redirect($this->returningAction);
     }
 
