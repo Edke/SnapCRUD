@@ -265,9 +265,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param SubmitButton $button
      */
     public function controls_onDelete(SubmitButton $button) {
-        //TODO better way of sending rows
-        $this->getPresenter()->getNamespace()->delete = $this->getSelectedRows();
-        $this->getPresenter()->redirect($this->defaultDeleteAction);
+        $key = $this->getPresenter()->storeValues($this->getSelectedRows());
+        $this->getPresenter()->redirect($this->defaultDeleteAction, array('sl' => $key));
     }
 
     /**
