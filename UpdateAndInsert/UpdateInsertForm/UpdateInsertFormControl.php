@@ -47,7 +47,7 @@ class UpdateInsertFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl 
         } else {
             throw new \Exception('Unable to determine state');
         }
-        
+
         # workflow
         $id = (int) $this->getPresenter()->getParam('id');
         if ($id == 0) {
@@ -56,7 +56,6 @@ class UpdateInsertFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl 
             $this->getPresenter()->getWorkFlow()->add(\tc("Editing record '%s'", $this->context->datafeed->getItemName($id)));
         }
     }
-
 
     /**
      * @inheritdoc
@@ -150,12 +149,14 @@ class UpdateInsertFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl 
         $this->onBeforeSave(&$values);
         if ($this->getForm()->hasErrors())
             return;
-        
+
         # fileapp processing
-        foreach($values as $key => $value) {
-            $control = $button->getForm()->getComponent($key);
-            if ( $control instanceof \Nette\Forms\AppFile) {
-                $values[$key] = $this->handleFile($control, !isset($current->$key) ? null : $current->$key);
+        foreach ($values as $key => $value) {
+            if ($button->getForm()->offsetExists($key)) {
+                $control = $button->getForm()->getComponent($key);
+                if ($control instanceof \Nette\Forms\AppFile) {
+                    $values[$key] = $this->handleFile($control, !isset($current->$key) ? null : $current->$key);
+                }
             }
         }
 
