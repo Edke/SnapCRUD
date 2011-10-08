@@ -76,12 +76,12 @@ class NetteDatabase implements IDataFeed {
         if (is_null($key)) {
             $key = $this->active;
         }
-        
-        if ( is_null($table)) {
+
+        if (is_null($table)) {
             $table = $this->table;
         }
-        
-        if ( $setActive) {
+
+        if ($setActive) {
             $this->active = $key;
         }
 
@@ -183,17 +183,16 @@ class NetteDatabase implements IDataFeed {
         if (!($values instanceof \stdClass or $values instanceof \Nette\ArrayHash)) {
             throw new \InvalidArgumentException();
         }
-        
+
         $meta = array();
         if (preg_match('#^([^.]+)\.([^.]+)$#', $this->table, $matches)) {
             $schema = $matches[1];
             $table = $matches[2];
-        }
-        else {
+        } else {
             $schema = 'public';
             $table = $this->table;
         }
-        foreach($this->getDatabase()->query("
+        foreach ($this->getDatabase()->query("
                     SELECT attname, typname, typlen
                     FROM pg_attribute, pg_class, pg_type, pg_namespace 
                     WHERE pg_class.oid = attrelid
@@ -215,20 +214,22 @@ class NetteDatabase implements IDataFeed {
         } else {
             $insert = array();
             # filter values
-            foreach($values as $column => $value) {
-                if ( key_exists($column, $meta)) {
+            foreach ($values as $column => $value) {
+                if (key_exists($column, $meta)) {
                     $insert[$column] = $this->normalizeRow($value, $meta[$column]->typname);
                 }
             }
             $row = $this->getSelection()->insert($insert);
-            
+
             # fix of lastinsertid for pg
             $pk = $this->getDatabase()->databaseReflection->getPrimary($this->table);
-            $row[$pk] = $this->getDatabase()->lastInsertId($this->table.'_'.$pk.'_seq');
+            if (!(isset($values[$pk]) and $values[$pk] != '')) {
+                $row[$pk] = $this->getDatabase()->lastInsertId($this->table . '_' . $pk . '_seq');
+            }
         }
         return $row;
     }
-    
+
     /**
      * Normalizes value
      * @param mixed $value
@@ -318,12 +319,11 @@ class NetteDatabase implements IDataFeed {
     public function getColumnFromRow($row, $column) {
         return $row->{$column};
     }
-    
-    
+
     public function getRow($id) {
         return $this->getSelection()->get($id);
     }
-    
+
     /**
      * Executes aggregation
      * @param string $function 
@@ -331,4 +331,5 @@ class NetteDatabase implements IDataFeed {
     public function aggregation($function) {
         return $this->getSelection()->aggregation($function);
     }
+
 }
