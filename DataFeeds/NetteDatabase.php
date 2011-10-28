@@ -224,7 +224,11 @@ class NetteDatabase implements IDataFeed {
             # fix of lastinsertid for pg
             $pk = $this->getDatabase()->databaseReflection->getPrimary($this->table);
             if (!(isset($values[$pk]) and $values[$pk] != '')) {
-                $row[$pk] = $this->getDatabase()->lastInsertId($this->table . '_' . $pk . '_seq');
+                $sequence = $this->table . '_' . $pk . '_seq';
+                if ($this->getDatabase()
+                                ->fetchColumn('select sequence from info.sequence_list where sequence = ?', $sequence)) {
+                    $row[$pk] = $this->getDatabase()->lastInsertId($sequence);
+                }
             }
         }
         return $row;
