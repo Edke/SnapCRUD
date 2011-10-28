@@ -82,6 +82,7 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
     public function createComponentForm() {
         $form = new \Nette\Application\UI\Form($this, 'form');
         $form->getElementPrototype()->class('gridform');
+        $form->setTranslator($this->context->translator);
         return $form;
     }
 
