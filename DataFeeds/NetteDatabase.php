@@ -54,6 +54,11 @@ class NetteDatabase implements IDataFeed {
     private $selections = array();
 
     /**
+     * @var string
+     */
+    private $sequenceName;
+
+    /**
      * @param DI\Container $context
      * @param string $table
      */
@@ -194,7 +199,7 @@ class NetteDatabase implements IDataFeed {
         }
         foreach ($this->getDatabase()->query("
                     SELECT attname, typname, typlen
-                    FROM pg_attribute, pg_class, pg_type, pg_namespace 
+                    FROM pg_attribute, pg_class, pg_type, pg_namespace
                     WHERE pg_class.oid = attrelid
                         AND pg_namespace.oid = pg_class.relnamespace
                         AND atttypid=pg_type.oid
@@ -224,14 +229,29 @@ class NetteDatabase implements IDataFeed {
             # fix of lastinsertid for pg
             $pk = $this->getDatabase()->databaseReflection->getPrimary($this->table);
             if (!(isset($values[$pk]) and $values[$pk] != '')) {
-                $sequence = $this->table . '_' . $pk . '_seq';
-                if ($this->getDatabase()
-                                ->fetchColumn('select sequence from info.sequence_list where sequence = ?', $sequence)) {
-                    $row[$pk] = $this->getDatabase()->lastInsertId($sequence);
-                }
+                $sequence = $this->getSequenceName();
+                $row[$pk] = $this->getDatabase()->lastInsertId($sequence);
             }
         }
         return $row;
+    }
+
+    /**
+     * Gets sequence name
+     * @return string
+     */
+    private function getSequenceName() {
+        return $this->sequenceName ? $this->sequenceName : $this->table . '_' . $this->getDatabase()->databaseReflection->getPrimary($this->table) . '_seq';
+    }
+
+    /**
+     * Sets name of sequence to fetch lastID
+     * @param string $sequenceName
+     * @return this
+     */
+    public function setSequenceName($sequenceName) {
+        $this->sequenceName = $sequenceName;
+        return $this;
     }
 
     /**
@@ -330,7 +350,7 @@ class NetteDatabase implements IDataFeed {
 
     /**
      * Executes aggregation
-     * @param string $function 
+     * @param string $function
      */
     public function aggregation($function) {
         return $this->getSelection()->aggregation($function);
