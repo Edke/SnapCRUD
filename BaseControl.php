@@ -179,6 +179,17 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     }
 
     /**
+     * Sets locate template file
+     * @param string $templateFilename
+     * @return this
+     */
+    public function setLocaleTemplateFilename($templateFilename)
+    {
+        $this->setTemplateFilename(__DIR__ . '.' . $templateFilename);
+        return $this;
+    }
+
+    /**
      * Build cache key
      */
     protected function buildKey()
