@@ -165,7 +165,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                         $footer->add(Html::el('th')->setHtml('&nbsp;'));
                     }
                     $colgroup->add($column->getCol());
-                    
+
                     # collecting cast
                     if ($column->hasCast()) {
                         $casting[] = $column->getCast();
@@ -203,13 +203,13 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                 }
                 $code[] = Html::el('tfoot')->add($footer);
             }
-            
+
             if (count($casting)) {
                 $code[] = '<?php $control->context->datafeed->getSelection()->select("*, ' . implode(', ', $casting) . '"); ?>';
-            }            
+            }
 
             $code[] = '<tbody>';
-            $code[] = '<?php 
+            $code[] = '<?php
         $iterator = 0;
         foreach ($control->context->datafeed->getIterator() as $row) {
             $iterator++;

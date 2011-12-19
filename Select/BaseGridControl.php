@@ -83,7 +83,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Build grid
      */
     public function build() {
-        
+
     }
 
     /**
@@ -131,7 +131,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
 
     /**
      * Gets datafeed
-     * @return \SnapCRUD\DataFeeds\IDataFeed 
+     * @return \SnapCRUD\DataFeeds\IDataFeed
      */
     public function getDatafeed() {
         return $this->context->datafeed;
@@ -174,7 +174,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
 
     /**
      * Gets form
-     * @return Form 
+     * @return Form
      */
     public function getForm() {
         if (!$this->form) {
@@ -210,7 +210,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
 
     /**
      * Gets toolbar container
-     * @return \Nette\Forms\Container 
+     * @return \Nette\Forms\Container
      */
     public function getToolbar() {
         return $this->getForm()->offsetGet('toolbar');
@@ -644,7 +644,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     /**
      * Sets flag if datagrid should be build when search is not set
      * @param type $build
-     * @return GridControl 
+     * @return GridControl
      */
     public function setBuildOnlyWithSearchSet($build) {
         $this->buildOnlyWhenSearchSet = $build;

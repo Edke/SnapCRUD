@@ -7,11 +7,12 @@ use DannaxTools\File;
 /**
  * BaseFormControl
  *
- * @author	Eduard Kracmar <kracmar@dannax.sk>
- * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
+ * @author       Eduard Kracmar <kracmar@dannax.sk>
+ * @copyright    Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  * @abstract
  */
-abstract class BaseFormControl extends \SnapCRUD\BaseControl {
+abstract class BaseFormControl extends \SnapCRUD\BaseControl
+{
 
     /**
      * Saves state of control (add, edit, update)
@@ -19,7 +20,7 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
      */
     protected $state;
     /**
-     * Nazov defaultneho action, ktory budu volat tlacitka add/cancel
+     * default destination link on success
      * @var string
      */
     protected $gridAction = 'default';
@@ -32,7 +33,8 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
      * Gets template filename
      * @return string
      */
-    protected function getTemplateFilename() {
+    protected function getTemplateFilename()
+    {
         if (!$this->templateFilename) {
             $this->templateFilename = __DIR__ . '/FormControl.latte';
         }
@@ -44,7 +46,8 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
      * @param string $filename Sets
      * @return this
      */
-    public function setTemplateFile($filename) {
+    public function setTemplateFile($filename)
+    {
         $this->template->setFile($filename);
         return $this;
     }
@@ -72,14 +75,18 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
     }
 
     /**
-     * Gets form
      * @return \Nette\Application\UI\Form
      */
-    public function getForm() {
+    public function getForm()
+    {
         return $this['form'];
     }
 
-    public function createComponentForm() {
+    /**
+     * @return \Nette\Application\UI\Form
+     */
+    public function createComponentForm()
+    {
         $form = new \Nette\Application\UI\Form($this, 'form');
         $form->getElementPrototype()->class('gridform');
         $form->setTranslator($this->context->translator);
@@ -96,10 +103,10 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
     }
 
     /**
-     * Returns state
      * @return string
      */
-    public function getState() {
+    public function getState()
+    {
         return $this->state;
     }
 
@@ -107,25 +114,32 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl {
      * Getter for file transaction
      * @return FileTransaction
      */
-    public function getFileTransaction() {
+    public function getFileTransaction()
+    {
         if (!$this->fileTransaction) {
             $this->fileTransaction = new FileTransaction();
         }
         return $this->fileTransaction;
     }
 
-    public function addWorkflow($workflow) {
-        $this->getPresenter()->getWorkFlow()->add($workflow);
-    }
-
-    public function setTitle($title) {
+    /**
+     * @param string $title
+     * @return this
+     */
+    public function setTitle($title)
+    {
         $this->template->title = $title;
+        return $this;
     }
 
     /**
-     * @param \Nette\Forms\AppFile $file
+     * @param $control
+     * @param $current
+     * @return null|string
+     * @throws \InvalidArgumentException|\LogicException
      */
-    protected function handleFile($control, $current) {
+    protected function handleFile($control, $current)
+    {
         if ($control->getDestPath() == '') {
             throw new \InvalidArgumentException("Path is not defined for (" . $control->getName() . ").");
         }

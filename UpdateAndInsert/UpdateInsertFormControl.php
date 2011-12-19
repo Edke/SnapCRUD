@@ -7,10 +7,11 @@ use Nette\Forms\Controls\SubmitButton;
 /**
  * UpdateInsertFormControl
  *
- * @author	Eduard Kracmar <kracmar@dannax.sk>
- * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
+ * @author       Eduard Kracmar <kracmar@dannax.sk>
+ * @copyright    Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  */
-class UpdateInsertFormControl extends BaseFormControl {
+class UpdateInsertFormControl extends BaseFormControl
+{
     const STATE_EDIT = 'edit';
     const STATE_ADD = 'add';
     const STATE_UPDATE = 'update';
@@ -60,7 +61,9 @@ class UpdateInsertFormControl extends BaseFormControl {
     /**
      * @inheritdoc
      */
-    public function createComponentForm() {
+    public function createComponentForm()
+    {
+        $control = $this;
         $form = parent::createComponentForm();
 
         # default submit buttons
@@ -77,7 +80,8 @@ class UpdateInsertFormControl extends BaseFormControl {
         return $form;
     }
 
-    public function setDefaultValues() {
+    public function setDefaultValues()
+    {
         if ($this->getPresenter()->getParam('restore')) {
             $defaults = $this->getPresenter()->getNamespace()->saved_form;
             $this->onRestore(&$defaults);
@@ -90,11 +94,11 @@ class UpdateInsertFormControl extends BaseFormControl {
             $id = (int) $this->getPresenter()->getParam('id');
             $defaults = $this->context->datafeed->getFormValues($id);
             $this->onEdit(&$defaults);
-            $this->getForm()->setDefaults((array) $defaults);
+            $this->getForm()->setDefaults((array)$defaults);
         } elseif ($this->state == UpdateInsertFormControl::STATE_ADD) {
             $defaults = $this->context->datafeed->getEmptyValues();
             $this->onAdd(&$defaults);
-            $this->getForm()->setDefaults((array) $defaults);
+            $this->getForm()->setDefaults((array)$defaults);
         }
     }
 
