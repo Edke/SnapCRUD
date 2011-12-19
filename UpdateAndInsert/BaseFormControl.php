@@ -52,26 +52,11 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
         return $this;
     }
 
-    /**
-     * renderovanie obsahu controlu
-     */
-    public function render() {
-        if (!(isset($this->template->title) and $this->template->title != '')) {
-            $this->template->title = $this->getPresenter()->getWorkFlow()->getLast();
-        }
-
-
+    public function render()
+    {
+        $template = $this->template;
         $this->template->setFile($this->getTemplateFilename());
-
-
-        if ($this->template->getFile() == null) {
-            $this->setTemplateFile(__DIR__ . '/FormControl.latte');
-        }
-        $this->template->form = $this->getForm();
-        ob_start();
-
-        $this->template->render();
-        echo ob_get_clean();
+        echo $this->template->render();
     }
 
     /**

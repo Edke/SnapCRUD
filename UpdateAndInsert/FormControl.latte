@@ -1,19 +1,8 @@
-<div class="block">
+<div class="module">
+    <h2 class="moduleHead" n:ifset="$title">{_$title}</h2>
 
-    <div class="block_head">
-        <div class="bheadl"></div>
-        <div class="bheadr"></div>
-
-        <h2>{_$title}</h2>
+    <div class="form">
+        {control form}
     </div>
-
-    <div class="block_content">
-
-	{!$form}
-
-    </div>
-
-    <div class="bendl"></div>
-    <div class="bendr"></div>
-
 </div>
+<div class="cleaner">&nbsp;</div>
