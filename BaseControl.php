@@ -43,7 +43,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control
         $this->ident = \preg_replace('#[\\\/:]+#', '_', ClassType::from($this)->getNamespaceName() . '_' .
             $this->getPresenter()->getName() . '_' .
             $this->getPresenter()->getAction() . '_' .
-            $this->getName());
+            $this->getUniqueId());
 
         # lazy cache
         $control = $this;
