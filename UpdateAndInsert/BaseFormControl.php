@@ -23,7 +23,7 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      * default destination link on success
      * @var string
      */
-    protected $gridAction = 'default';
+    private $destinationOnSuccess = 'default';
     /**
      * Events
      */
@@ -94,12 +94,21 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
     }
 
     /**
-     * Setter, zmeni defaultny grid action, ak je iny ako "default"
-     *
-     * @param string $action
+     * @param string $destinationOnSuccess
+     * @return this
      */
-    public function setDefaultGridAction($action) {
-        $this->gridAction = $action;
+    public function setDestinationOnSuccess($destinationOnSuccess)
+    {
+        $this->destinationOnSuccess = $destinationOnSuccess;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDestinationOnSuccess()
+    {
+        return $this->destinationOnSuccess;
     }
 
     /**
