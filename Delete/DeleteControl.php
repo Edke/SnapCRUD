@@ -2,37 +2,43 @@
 
 namespace SnapCRUD\Delete;
 
-use Nette\Utils\Html;
+use Nette\Utils\Html,
+Nette\Forms\Controls\SubmitButton;
 
 /**
  * DeleteControl
  *
- * @author	Eduard Kracmar <kracmar@dannax.sk>
- * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
+ * @author       Eduard Kracmar <kracmar@dannax.sk>
+ * @copyright    Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  */
-class DeleteControl extends \SnapCRUD\BaseControl {
+class DeleteControl extends \SnapCRUD\BaseControl
+{
 
     /**
      * Events
      * @var array
      */
     public $onBefore, $onAfter;
-    /**
-     * @var string
-     */
-    protected $returningAction = 'default';
+
+    /** @var string */
+    private $destinationReturn = 'default';
+
     /**
      * @var array
      */
     protected $rows;
     protected $unlinkQueue = array();
 
+
     /**
-     * @return \Nette\Application\UI\Form 
+     * @return \Nette\Application\UI\Form
      */
-    public function createComponentForm() {
+    public function createComponentForm()
+    {
+        $control = $this;
+
         $text = \nt("Deleting of record", count($this->rows));
-        $this->getPresenter()->getWorkFlow()->add($text);
+        $this->template->title = $text;
 
         $form = new \Nette\Application\UI\Form($this, 'form');
         $form->setTranslator($this->context->translator);
@@ -55,16 +61,52 @@ class DeleteControl extends \SnapCRUD\BaseControl {
         $container = $form->addContainer('rows');
         $defaults = array();
         foreach ($this->rows as $value) {
-            $container->addCheckbox((string) $value, $this->context->datafeed->getItemName($value));
+            $container->addCheckbox((string)$value, $this->context->datafeed->getItemName($value));
             $defaults['rows'][$value] = true;
         }
         $form->setCurrentGroup();
 
         $form->addSubmit('delete', 'Confirm deletion')
-                ->onClick[] = array($this, 'onDelete');
+            ->onClick[] = function (SubmitButton $button) use ($control)
+        {
+            /** @var \SnapCRUD\Delete\DeleteControl $control */
+
+            $values = (object)$button->getForm()->getComponent('rows')->getValues();
+
+            $control->onBefore(&$values);
+
+            $control->context->datafeed->beginTransaction();
+            $result = $control->context->datafeed->deleteRows($values);
+            if (\is_object($result)) {
+                $control->context->datafeed->rollbackTransaction();
+                $message = tc("Error occured during deleting records from db: %s", $result->getMessage());
+                $control->getPresenter()->flashMessage($message);
+                $control->getPresenter()->redirect($control->getDestinationReturn());
+            }
+            $control->onAfter(&$values);
+            $control->context->datafeed->commitTransaction();
+
+            if ($result > 0) {
+                $message = \nt("Selected record was successfully deleted.", $result);
+                $control->getPresenter()->flashMessage($message, 'error');
+            }
+            $control->getPresenter()->destroyValues($control->getForm()->getComponent('key')->getValue());
+
+            # TODO backlink handling
+            $control->getPresenter()->redirect($control->getDestinationReturn());
+        };
 
         $form->addSubmit('cancel', 'Cancel')
-                ->onClick[] = array($this, 'onCancel');
+            ->onClick[] = function (SubmitButton $button) use ($control)
+        {
+            /** @var \SnapCRUD\Delete\DeleteControl $control */
+
+            $control->getPresenter()->destroyValues($control->getForm()->getComponent('key')->getValue());
+            $control->getPresenter()->flashMessage('Deleting of records has been canceled.', 'warning');
+
+            # TODO backlink handling
+            $control->getPresenter()->redirect($control->getDestinationReturn());
+        };
 
         $form->setDefaults($defaults);
 
@@ -75,7 +117,8 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      * Gets selected rows to be deleted
      * @return array
      */
-    public function getSelectedRows() {
+    public function getSelectedRows()
+    {
         $result = array();
         foreach ($this->getForm()->getComponent('rows')->getControls() as $control) {
             if ($control->getValue() == true) {
@@ -88,13 +131,15 @@ class DeleteControl extends \SnapCRUD\BaseControl {
     /**
      * @return \Nette\Application\UI\Form
      */
-    public function getForm() {
+    public function getForm()
+    {
         return $this['form'];
     }
 
     /**
      */
-    public function render() {
+    public function render()
+    {
         // setup custom rendering
         $renderer = $this->getForm()->getRenderer();
         $renderer->wrappers['form']['container'] = NULL;
@@ -109,71 +154,22 @@ class DeleteControl extends \SnapCRUD\BaseControl {
         $renderer->wrappers['label']['container'] = Html::el('td');
         $renderer->wrappers['label']['suffix'] = FALSE;
 
-        $this->template->setFile($this->getTemplateFilename());
-        $this->template->records = count($this->rows);
-        $this->template->form = $this->getForm();
-        $this->template->formControl = $this;
+        $template = $this->template;
+        $template->setFile($this->getTemplateFilename());
+        $template->records = count($this->rows);
 
-        ob_start();
-        $this->template->render();
+        //$this->template->form = $this->getForm();
+        //$this->template->formControl = $this;
 
-        echo ob_get_clean();
-    }
-
-    /**
-     * @param \Nette\Forms\Controls\SubmitButton $button
-     */
-    public function onCancel(\Nette\Forms\Controls\SubmitButton $button) {
-        $this->getPresenter()->destroyValues($this->getForm()->getComponent('key')->getValue());
-        $this->getPresenter()->flashMessage('Deleting of records has been canceled.', 'warning');
-
-        # TODO backlink handling
-        $this->getPresenter()->redirect($this->returningAction);
-    }
-
-    /**
-     * @param \Nette\Forms\Controls\SubmitButton $button
-     */
-    public function onDelete(\Nette\Forms\Controls\SubmitButton $button) {
-        $values = (object) $button->getForm()->getComponent('rows')->getValues();
-
-        $this->onBefore(&$values);
-
-        $this->context->datafeed->beginTransaction();
-        $result = $this->context->datafeed->deleteRows($values);
-        if (\is_object($result)) {
-            $this->context->datafeed->rollbackTransaction();
-            $message = tc("Error occured during deleting records from db: %s", $result->getMessage());
-            $this->getPresenter()->flashMessage($message);
-            $this->getPresenter()->redirect($this->returningAction);
-        }
-        $this->onAfter(&$values);
-        $this->context->datafeed->commitTransaction();
-
-        if ($result > 0) {
-            $message = \nt("Selected record was successfully deleted.", $result);
-            $this->getPresenter()->flashMessage($message, 'error');
-        }
-        $this->getPresenter()->destroyValues($this->getForm()->getComponent('key')->getValue());
-
-        # TODO backlink handling
-        $this->getPresenter()->redirect($this->returningAction);
-    }
-
-    /**
-     * Sets redirecting action after events, default is "default"
-     *
-     * @param string $action
-     */
-    public function setReturningAction($action) {
-        $this->returningAction = $action;
+        echo $template->render();
     }
 
     /**
      * Add file to unlink queue
-     * @param mixed $file 
+     * @param mixed $file
      */
-    public function addFileToUnlink($files) {
+    public function addFileToUnlink($files)
+    {
         if (is_string($files)) {
             $files = array($filse);
         }
@@ -191,13 +187,33 @@ class DeleteControl extends \SnapCRUD\BaseControl {
      * Unlink queue
      * @return void
      */
-    public function unlinkQueue() {
+    public function unlinkQueue()
+    {
         foreach ($this->unlinkQueue as $file) {
             $res = unlink($file);
             if ($res === false) {
                 error_log(date('[Y-m-d H:i:s] ') . "Unable to delete file ($file).\n", 3, Nette\Diagnostics\Debugger::$logDirectory . 'backend.log');
             }
         }
+    }
+
+    /**
+     * @param $destinationReturn
+     * @return this
+     */
+    public function setDestinationReturn($destinationReturn)
+    {
+
+        $this->destinationReturn = $destinationReturn;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDestinationReturn()
+    {
+        return $this->destinationReturn;
     }
 
 }
