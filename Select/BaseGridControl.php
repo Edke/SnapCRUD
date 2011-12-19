@@ -344,6 +344,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @return array
      */
     public function getSelectedRows() {
+        $this->build();
         $selected = array();
         foreach ($this->getCheckboxes()->getValues() as $id => $checked) {
             if ($checked) {

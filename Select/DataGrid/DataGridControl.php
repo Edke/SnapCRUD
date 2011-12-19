@@ -102,6 +102,12 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
     public function build() {
         parent::build();
 
+        # stop if already builded
+        if ($this->builded)
+        {
+            return;
+        }
+
         $control = $this;
 
         # conditions
