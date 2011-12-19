@@ -1,6 +1,6 @@
 <?php
 
-namespace SnapCRUD\UpdateAndInsert\UpdateForm;
+namespace SnapCRUD\UpdateAndInsert;
 
 /**
  * UpdateFormControl
@@ -8,7 +8,7 @@ namespace SnapCRUD\UpdateAndInsert\UpdateForm;
  * @author	Eduard Kracmar <kracmar@dannax.sk>
  * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  */
-class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
+class UpdateFormControl extends BaseFormControl {
     const STATE_EDIT = 'edit';
     const STATE_UPDATE = 'update';
 
@@ -68,7 +68,7 @@ class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
      */
     public function form_onCancel(\Nette\Forms\Controls\SubmitButton $button) {
         $this->getPresenter()->flashMessage('Record updating was canceled, record was not modified.', 'warning');
-        
+
         #gridBacklink handling
         $backlink = $this->getPresenter()->getParam('_bl');
         if ($backlink) {
@@ -92,7 +92,7 @@ class UpdateFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
         $this->context->datafeed->commitTransaction();
 
         $this->getPresenter()->flashMessage('Record was successfully updated.', 'ok');
-        
+
         #gridBacklink handling
         $backlink = $this->getPresenter()->getParam('_bl');
         if ($backlink) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace SnapCRUD\UpdateAndInsert\UpdateInsertForm;
+namespace SnapCRUD\UpdateAndInsert;
 
 use Nette\Forms\Controls\SubmitButton;
 
@@ -10,7 +10,7 @@ use Nette\Forms\Controls\SubmitButton;
  * @author	Eduard Kracmar <kracmar@dannax.sk>
  * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  */
-class UpdateInsertFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl {
+class UpdateInsertFormControl extends BaseFormControl {
     const STATE_EDIT = 'edit';
     const STATE_ADD = 'add';
     const STATE_UPDATE = 'update';
@@ -51,9 +51,9 @@ class UpdateInsertFormControl extends \SnapCRUD\UpdateAndInsert\BaseFormControl 
         # workflow
         $id = (int) $this->getPresenter()->getParam('id');
         if ($id == 0) {
-            $this->getPresenter()->getWorkFlow()->add(_('New record'));
+            $this->setTitle(_('New record'));
         } else {
-            $this->getPresenter()->getWorkFlow()->add(\tc("Editing record '%s'", $this->context->datafeed->getItemName($id)));
+            $this->setTitle(\tc("Editing record '%s'", $this->context->datafeed->getItemName($id)));
         }
     }
 
