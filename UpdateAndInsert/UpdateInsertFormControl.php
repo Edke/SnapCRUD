@@ -17,6 +17,8 @@ class UpdateInsertFormControl extends BaseFormControl
     const STATE_UPDATE = 'update';
     const STATE_INSERT = 'insert';
 
+    /** @var int */
+    private $id;
 
     /**
      * Events
@@ -28,35 +30,44 @@ class UpdateInsertFormControl extends BaseFormControl
     protected $fileTransaction;
 
     /**
-     * Konstruktor
-     * @param \Nette\ComponentModel\IContainer $parent
-     * @param string $name
+     * @param int $id
+     * @return UpdateInsertFormControl
      */
-    public function __construct(\Nette\ComponentModel\IContainer $parent, $name) {
-        parent::__construct($parent, $name);
+    public function setId($id)
+    {
+        $this->id = (integer) $id;
 
         # state
-        $id = (int) $this->getPresenter()->getParam('id');
-        if (!$this->getForm()->isSubmitted() and $id == 0) {
+        if (!$this->getForm()->isSubmitted() and $this->id == 0) {
             $this->state = UpdateInsertFormControl::STATE_ADD;
         } elseif (!$this->getForm()->isSubmitted() and $id != 0) {
             $this->state = UpdateInsertFormControl::STATE_EDIT;
-        } elseif ($this->getForm()->isSubmitted() and $id == 0) {
+        } elseif ($this->getForm()->isSubmitted() and $this->id == 0) {
             $this->state = UpdateInsertFormControl::STATE_INSERT;
-        } elseif ($this->getForm()->isSubmitted() and $id != 0) {
+        } elseif ($this->getForm()->isSubmitted() and $this->id != 0) {
             $this->state = UpdateInsertFormControl::STATE_UPDATE;
         } else {
             throw new \Exception('Unable to determine state');
         }
 
-        # workflow
-        $id = (int) $this->getPresenter()->getParam('id');
-        if ($id == 0) {
-            $this->setTitle(_('New record'));
-        } else {
+        # title
+        if ($this->id > 0) {
             $this->setTitle(\tc("Editing record '%s'", $this->context->datafeed->getItemName($id)));
+
+        } else {
+            $this->setTitle(_('New record'));
         }
+        return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
 
     /**
      * @inheritdoc
@@ -68,15 +79,86 @@ class UpdateInsertFormControl extends BaseFormControl
 
         # default submit buttons
         $form->setCurrentGroup();
-        $id = (int) $this->getPresenter()->getParam('id');
 
-        $applyText = $id > 0 ? _('Update') : _('Add');
+        $applyText = $this->id > 0 ? _('Update') : _('Add');
         $form->addSubmit('apply', $applyText)
-                ->onClick[] = array($this, 'form_onApply');
+            ->onClick[] = function (SubmitButton $button) use ($control)
+        {
+            $id = $control->getId();
+            $values = (object)$button->getForm()->getValues();
+
+            $control->context->datafeed->beginTransaction();
+
+            if ($id > 0) {
+                $current = $control->context->datafeed->getRow($id);
+                $control->onBeforeUpdate(&$values);
+            } else {
+                $current = $control->context->datafeed->getEmptyValues();
+                $control->onBeforeInsert(&$values);
+            }
+            $control->onBeforeSave(&$values);
+            if ($control->getForm()->hasErrors())
+                return;
+
+            # fileapp processing
+            foreach ($values as $key => $value) {
+                if ($button->getForm()->offsetExists($key)) {
+                    $formControl = $button->getForm()->getComponent($key);
+                    if ($formControl instanceof \Nette\Forms\AppFile) {
+                        $values[$key] = $control->handleFile($formControl, !isset($current->$key) ? null : $current->$key);
+                    }
+                }
+            }
+
+            $result = $control->context->datafeed->save($values, $id);
+
+            if ($id > 0) {
+                $control->onAfterUpdate($result);
+            } else {
+                $control->onAfterInsert($result);
+            }
+            $control->onAfterSave($result);
+
+            if ($control->getForm()->hasErrors()) {
+                $control->context->datafeed->rollbackTransaction();
+                return;
+            }
+            $control->context->datafeed->commitTransaction();
+
+            $text = ($id > 0) ? _('Record was successfully updated.') : _('Record was succesfully added.');
+            $control->getPresenter()->flashMessage($text);
+
+            #gridBacklink handling
+            $backlink = $control->getPresenter()->getParam('_bl');
+            if ($backlink) {
+                $control->getPresenter()->_bl = '';
+                $control->getPresenter()->restoreBacklink($backlink);
+            } else {
+                $control->getPresenter()->redirect($control->getDestinationOnSuccess());
+            }
+        };
 
         $form->addSubmit('cancel', 'Cancel')
-                        ->setValidationScope(FALSE)
-                ->onClick[] = array($this, 'form_onCancel');
+            ->setValidationScope(FALSE)
+            ->onClick[] = function (SubmitButton $button) use ($control)
+        {
+            /** @var \SnapCRUD\UpdateAndInsert\BaseFormControl $control */
+
+            # TODO checking if form was changed
+            $id = $control->getId();
+
+            $text = ($id > 0) ? _('Adding new record was canceled.') : _('Updating record was canceled, no record was modified.');
+            $control->getPresenter()->flashMessage($text, 'warning');
+
+            #gridBacklink handling
+            $backlink = $control->getPresenter()->getParam('_bl');
+            if ($backlink) {
+                $control->getPresenter()->_bl = '';
+                $control->getPresenter()->restoreBacklink($backlink);
+            } else {
+                $control->getPresenter()->redirect($control->getDestinationOnSuccess());
+            }
+        };
         return $form;
     }
 
@@ -90,9 +172,8 @@ class UpdateInsertFormControl extends BaseFormControl
             $defaults = $this->getPresenter()->getNamespace()->saved_form;
             $this->getForm()->setDefaults($defaults);
         } elseif ($this->state == UpdateInsertFormControl::STATE_EDIT) {
-            # TODO nastavitelny kluc
-            $id = (int) $this->getPresenter()->getParam('id');
-            $defaults = $this->context->datafeed->getFormValues($id);
+            # TODO configurable key
+            $defaults = $this->context->datafeed->getFormValues($this->id);
             $this->onEdit(&$defaults);
             $this->getForm()->setDefaults((array)$defaults);
         } elseif ($this->state == UpdateInsertFormControl::STATE_ADD) {
@@ -106,90 +187,12 @@ class UpdateInsertFormControl extends BaseFormControl
      * Getter for file transaction
      * @return FileTransaction
      */
-    public function getFileTransaction() {
+    public function getFileTransaction()
+    {
         if (!$this->fileTransaction) {
             $this->fileTransaction = new FileTransaction();
         }
         return $this->fileTransaction;
-    }
-
-    /**
-     * Handler onCancel pre view Form
-     *
-     * Pri zruseni pridavania/upravovania formulara sa vracia na view Default a naplni message
-     *
-     * @todo overenie zmeneneho formulara
-     * @param SubmitButton $button
-     */
-    public function form_onCancel(SubmitButton $button) {
-        $id = (int) $this->getParam('id');
-
-        $text = ($id > 0) ? _('Adding new record was canceled.') : _('Updating record was canceled, no record was modified.');
-        $this->getPresenter()->flashMessage($text, 'warning');
-
-        #gridBacklink handling
-        $backlink = $this->getPresenter()->getParam('_bl');
-        if ($backlink) {
-            $this->getPresenter()->_bl = '';
-            $this->getPresenter()->restoreBacklink($backlink);
-        } else {
-            $this->getPresenter()->redirect($this->gridAction);
-        }
-    }
-
-    public function form_onApply(SubmitButton $button) {
-        $id = (int) $this->getPresenter()->getParam('id');
-        $values = (object) $button->getForm()->getValues();
-
-        $this->context->datafeed->beginTransaction();
-
-        if ($id > 0) {
-            $current = $this->context->datafeed->getRow($id);
-            $this->onBeforeUpdate(&$values);
-        } else {
-            $current = $this->context->datafeed->getEmptyValues();
-            $this->onBeforeInsert(&$values);
-        }
-        $this->onBeforeSave(&$values);
-        if ($this->getForm()->hasErrors())
-            return;
-
-        # fileapp processing
-        foreach ($values as $key => $value) {
-            if ($button->getForm()->offsetExists($key)) {
-                $control = $button->getForm()->getComponent($key);
-                if ($control instanceof \Nette\Forms\AppFile) {
-                    $values[$key] = $this->handleFile($control, !isset($current->$key) ? null : $current->$key);
-                }
-            }
-        }
-
-        $result = $this->context->datafeed->save($values, $id);
-
-        if ($id > 0) {
-            $this->onAfterUpdate($result);
-        } else {
-            $this->onAfterInsert($result);
-        }
-        $this->onAfterSave($result);
-
-        if ($this->getForm()->hasErrors()) {
-            $this->context->datafeed->rollbackTransaction();
-            return;
-        }
-        $this->context->datafeed->commitTransaction();
-
-        $text = ($id > 0) ? _('Record was successfully updated.') : _('Record was succesfully added.');
-        $this->getPresenter()->flashMessage($text);
-
-        #gridBacklink handling
-        $backlink = $this->getPresenter()->getParam('_bl');
-        if ($backlink) {
-            $this->getPresenter()->_bl = '';
-            $this->getPresenter()->restoreBacklink($backlink);
-        } else {
-            $this->getPresenter()->redirect($this->gridAction);
-        }
     }
 
 }
