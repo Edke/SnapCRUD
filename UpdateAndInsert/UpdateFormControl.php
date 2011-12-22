@@ -18,13 +18,9 @@ class UpdateFormControl extends BaseFormControl {
      */
     public $onSave;
 
-    /**
-     * Konstruktor
-     * @param IComponentContainer $parent
-     * @param string $name
-     */
-    public function __construct(\Nette\ComponentModel\IContainer $parent, $name) {
-        parent::__construct($parent, $name);
+    public function attached($control)
+    {
+        parent::attached($control);
 
         # state
         if (!$this->getForm()->isSubmitted()) {
