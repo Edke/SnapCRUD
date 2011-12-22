@@ -29,6 +29,7 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      */
     public $onEdit;
 
+
     /**
      * Gets template filename
      * @return string
@@ -72,9 +73,8 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      */
     public function createComponentForm()
     {
-        $form = new \Nette\Application\UI\Form($this, 'form');
+        $form = new \Nette\Application\UI\Form();
         $form->getElementPrototype()->class('gridform');
-        $form->setTranslator($this->context->translator);
         return $form;
     }
 
@@ -103,6 +103,18 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
     {
         return $this->state;
     }
+
+    /**
+     * @param $state
+     * @return this
+     */
+    public function setState($state)
+    {
+        $this->state = $state;
+        return $this;
+    }
+
+
 
     /**
      * Getter for file transaction
@@ -178,5 +190,6 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
             throw new \LogicException('invalid case');
         }
     }
+
 
 }

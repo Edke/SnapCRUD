@@ -29,35 +29,13 @@ class UpdateInsertFormControl extends BaseFormControl
      */
     protected $fileTransaction;
 
-    /**
-     * @param int $id
-     * @return UpdateInsertFormControl
-     */
-    public function setId($id)
+    public function __construct($id)
     {
-        $this->id = (integer) $id;
+        parent::__construct();
+        $this->id = (integer)$id;
 
-        # state
-        if (!$this->getForm()->isSubmitted() and $this->id == 0) {
-            $this->state = UpdateInsertFormControl::STATE_ADD;
-        } elseif (!$this->getForm()->isSubmitted() and $id != 0) {
-            $this->state = UpdateInsertFormControl::STATE_EDIT;
-        } elseif ($this->getForm()->isSubmitted() and $this->id == 0) {
-            $this->state = UpdateInsertFormControl::STATE_INSERT;
-        } elseif ($this->getForm()->isSubmitted() and $this->id != 0) {
-            $this->state = UpdateInsertFormControl::STATE_UPDATE;
-        } else {
-            throw new \Exception('Unable to determine state');
-        }
-
-        # title
-        if ($this->id > 0) {
-            $this->setTitle(\tc("Editing record '%s'", $this->context->datafeed->getItemName($id)));
-
-        } else {
-            $this->setTitle(_('New record'));
-        }
-        return $this;
+        $this->unmonitor('Nette\Application\UI\Presenter');
+        $this->monitor('Nette\Application\UI\Control');
     }
 
     /**
@@ -80,8 +58,7 @@ class UpdateInsertFormControl extends BaseFormControl
         # default submit buttons
         $form->setCurrentGroup();
 
-        $applyText = $this->id > 0 ? _('Update') : _('Add');
-        $form->addSubmit('apply', $applyText)
+        $form->addSubmit('apply', _('Add'))
             ->onClick[] = function (SubmitButton $button) use ($control)
         {
             $id = $control->getId();
@@ -162,24 +139,65 @@ class UpdateInsertFormControl extends BaseFormControl
         return $form;
     }
 
-    public function setDefaultValues()
+
+    public function attached($control)
     {
-        if ($this->getPresenter()->getParam('restore')) {
-            $defaults = $this->getPresenter()->getNamespace()->saved_form;
-            $this->onRestore(&$defaults);
-            $this->getForm()->setDefaults($defaults);
-        } elseif ($this->getPresenter()->getParam('return')) {
-            $defaults = $this->getPresenter()->getNamespace()->saved_form;
-            $this->getForm()->setDefaults($defaults);
-        } elseif ($this->state == UpdateInsertFormControl::STATE_EDIT) {
-            # TODO configurable key
-            $defaults = $this->context->datafeed->getFormValues($this->id);
-            $this->onEdit(&$defaults);
-            $this->getForm()->setDefaults((array)$defaults);
-        } elseif ($this->state == UpdateInsertFormControl::STATE_ADD) {
-            $defaults = $this->context->datafeed->getEmptyValues();
-            $this->onAdd(&$defaults);
-            $this->getForm()->setDefaults((array)$defaults);
+        parent::attached($control);
+
+        $presenter = $control->getPresenter();
+
+        /** DISABLED AS OBSOLETE
+        if ($presenter->getParam('restore')) {
+        $defaults = $presenter->getNamespace()->saved_form;
+        $this->onRestore(&$defaults);
+        $this->getForm()->setDefaults($defaults);
+        } elseif ($presenter->getParam('return')) {
+        $defaults = $presenter->getNamespace()->saved_form;
+        $this->getForm()->setDefaults($defaults);
+        } */
+
+        # state
+        if (!$this->getForm()->isSubmitted() and $this->id == 0) {
+            $this->state = UpdateInsertFormControl::STATE_ADD;
+        } elseif (!$this->getForm()->isSubmitted() and $this->id != 0) {
+            $this->state = UpdateInsertFormControl::STATE_EDIT;
+        } elseif ($this->getForm()->isSubmitted() and $this->id == 0) {
+            $this->state = UpdateInsertFormControl::STATE_INSERT;
+        } elseif ($this->getForm()->isSubmitted() and $this->id != 0) {
+            $this->state = UpdateInsertFormControl::STATE_UPDATE;
+        } else {
+            throw new \Exception('Unable to determine state');
+        }
+
+        switch ($this->state) {
+            case UpdateInsertFormControl::STATE_EDIT:
+                # TODO configurable key
+                $defaults = $this->context->datafeed->getFormValues($this->id);
+                $this->onEdit(&$defaults);
+                $this->getForm()->setDefaults((array)$defaults);
+                break;
+
+            case UpdateInsertFormControl::STATE_ADD:
+                $defaults = $this->context->datafeed->getEmptyValues();
+                $this->onAdd(&$defaults);
+                $this->getForm()->setDefaults((array)$defaults);
+                break;
+
+            case UpdateInsertFormControl::STATE_INSERT:
+
+                break;
+        }
+
+        # update/edit
+        if ($this->id > 0) {
+            $this->setTitle(\tc("Editing record '%s'", $this->context->datafeed->getItemName($this->id)));
+            # change caption if update
+            $this->getForm()->getComponent('apply')->caption = _('Update');
+
+        }
+        # add/insert
+        else {
+            $this->setTitle(_('New record'));
         }
     }
 

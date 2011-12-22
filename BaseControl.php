@@ -24,10 +24,11 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     protected $context;
     protected $ident;
 
-    protected function attached($presenter)
+
+    protected function attached($control)
     {
-        parent::attached($presenter);
-        $this->setContext($presenter->getContext());
+        parent::attached($control);
+        $this->setContext($control->getContext());
     }
 
     /**
@@ -61,15 +62,14 @@ abstract class BaseControl extends \Nette\Application\UI\Control
         # lazy cacheStorage
         $this->context->addService('cacheStorage', function() use ($context)
         {
+
             return $context->cacheStorage;
         });
 
-        # lazy translator
+        # translator
         if ($context->hasService('translator')) {
-            $this->context->addService('translator', function() use ($context)
-            {
-                return $context->translator;
-            });
+            $this->context->addService('translator', $context->translator);
+            $this->template->setTranslator($this->context->translator);
         }
 
         # lazy texy
@@ -206,17 +206,6 @@ abstract class BaseControl extends \Nette\Application\UI\Control
         return md5($this->getPresenter()->getContext()->params['application']['md5Salt'] . implode('|', $parts));
     }
 
-    public function createTemplate($class = null)
-    {
-        $template = parent::createTemplate($class);
-
-        $template->setTranslator($this->context->translator);
-
-        # helpers
-        $template->registerHelper('texy', array($this->context->texy, 'process'));
-        return $template;
-    }
-
     /**
      * @inheritdoc
      * @param  \Nette\Templating\Template
@@ -225,6 +214,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     public function templatePrepareFilters($template)
     {
         $template->registerFilter($this->context->latteEngine);
+        $template->registerHelper('texy', array($this->context->texy, 'process'));
     }
 
 }
