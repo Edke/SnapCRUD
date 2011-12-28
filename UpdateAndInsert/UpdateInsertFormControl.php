@@ -20,9 +20,6 @@ class UpdateInsertFormControl extends BaseFormControl
     /** @var int */
     private $id;
 
-    /** @var array */
-    private $defaults = array();
-
     /**
      * Events
      */
@@ -176,14 +173,14 @@ class UpdateInsertFormControl extends BaseFormControl
             case UpdateInsertFormControl::STATE_EDIT:
             case UpdateInsertFormControl::STATE_UPDATE:
                 # TODO configurable key
-                $this->defaults = $defaults = $this->context->datafeed->getFormValues($this->id);
+                $defaults = $this->context->datafeed->getFormValues($this->id);
                 $this->onEdit(&$defaults);
                 $this->getForm()->setDefaults((array)$defaults);
                 break;
 
             case UpdateInsertFormControl::STATE_ADD:
             case UpdateInsertFormControl::STATE_INSERT:
-                $defaults = $defaults = $this->context->datafeed->getEmptyValues();
+                $defaults = $this->context->datafeed->getEmptyValues();
                 $this->onAdd(&$defaults);
                 $this->getForm()->setDefaults((array)$defaults);
                 break;
@@ -200,14 +197,17 @@ class UpdateInsertFormControl extends BaseFormControl
         else {
             $this->setTitle(_('New record'));
         }
-    }
 
-    /**
-     * @return array
-     */
-    public function getDefaults()
-    {
-        return $this->defaults;
+        # refresh DependentSelects
+        foreach ($this->getForm()->getControls() as $control)
+        {
+            if ($control instanceof \DependentSelectBox\DependentMultiSelectBox
+                or $control instanceof \DependentSelectBox\DependentSelectBox
+            ) {
+                $control->refresh();
+            }
+        }
+
     }
 
     /**
