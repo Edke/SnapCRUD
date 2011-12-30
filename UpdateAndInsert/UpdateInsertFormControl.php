@@ -17,17 +17,15 @@ class UpdateInsertFormControl extends BaseFormControl
     const STATE_UPDATE = 'update';
     const STATE_INSERT = 'insert';
 
-    /** @var int */
-    private $id;
-
-    /**
-     * Events
-     */
+    /** Events */
     public $onAdd, $onBeforeSave, $onBeforeUpdate, $onBeforeInsert, $onAfterUpdate, $onAfterInsert, $onAfterSave, $onRestore;
     /**
      * @var FileTransaction
      */
     protected $fileTransaction;
+
+    /** @var integer */
+    protected $id;
 
     public function __construct($id)
     {
@@ -166,6 +164,7 @@ class UpdateInsertFormControl extends BaseFormControl
             throw new \Exception('Unable to determine state');
         }
 
+        # defaults
         switch ($this->state) {
             case UpdateInsertFormControl::STATE_EDIT:
             case UpdateInsertFormControl::STATE_UPDATE:
@@ -183,14 +182,14 @@ class UpdateInsertFormControl extends BaseFormControl
                 break;
         }
 
-        # update/edit
+        # title and submit caption while update/edit
         if ($this->id > 0) {
             $this->setTitle(\tc("Editing record '%s'", $this->context->datafeed->getItemName($this->id)));
             # change caption if update
             $this->getForm()->getComponent('apply')->caption = _('Update');
 
         }
-        # add/insert
+        # title while add/insert
         else {
             $this->setTitle(_('New record'));
         }
@@ -204,7 +203,6 @@ class UpdateInsertFormControl extends BaseFormControl
                 $control->refresh();
             }
         }
-
     }
 
     /**
