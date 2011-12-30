@@ -35,6 +35,13 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      */
     public $onEdit;
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->unmonitor('Nette\Application\UI\Presenter');
+        $this->monitor('Nette\Application\UI\Control');
+    }
 
     /**
      * Gets template filename
@@ -214,6 +221,8 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
             throw new \LogicException('invalid case');
         }
     }
+
+
 
 
 }

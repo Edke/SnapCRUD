@@ -32,10 +32,7 @@ class UpdateInsertFormControl extends BaseFormControl
     public function __construct($id)
     {
         parent::__construct();
-        $this->id = (integer)$id;
-
-        $this->unmonitor('Nette\Application\UI\Presenter');
-        $this->monitor('Nette\Application\UI\Control');
+        $this->id = (integer) $id;
     }
 
     /**
