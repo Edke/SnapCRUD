@@ -128,7 +128,7 @@ class UpdateInsertFormControl extends BaseFormControl
                 $control->getPresenter()->_bl = '';
                 $control->getPresenter()->restoreBacklink($backlink);
             } else {
-                $control->getPresenter()->redirect($control->getDestinationOnSuccess());
+                $control->getPresenter()->redirect($control->getDestinationOnCancel());
             }
         };
         return $form;
