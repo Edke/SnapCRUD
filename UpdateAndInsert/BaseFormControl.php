@@ -25,6 +25,12 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      */
     private $destinationOnSuccess = 'default';
     /**
+     * default destination link on cancel
+     * @var string
+     */
+    private $destinationOnCancel = 'default';
+
+    /**
      * Events
      */
     public $onEdit;
@@ -94,6 +100,24 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
     public function getDestinationOnSuccess()
     {
         return $this->destinationOnSuccess;
+    }
+
+    /**
+     * @param string $destinationOnCancel
+     * @return this
+     */
+    public function setDestinationOnCancel($destinationOnCancel)
+    {
+        $this->destinationOnCancel = $destinationOnCancel;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDestinationOnCancel()
+    {
+        return $this->destinationOnCancel;
     }
 
     /**
