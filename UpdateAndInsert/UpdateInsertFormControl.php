@@ -119,7 +119,7 @@ class UpdateInsertFormControl extends BaseFormControl
             # TODO checking if form was changed
             $id = $control->getId();
 
-            $text = ($id > 0) ? _('Adding new record was canceled.') : _('Updating record was canceled, no record was modified.');
+            $text = ($id > 0) ? _('Updating record was canceled, no record was modified.') : _('Adding new record was canceled.');
             $control->getPresenter()->flashMessage($text, 'warning');
 
             #gridBacklink handling
