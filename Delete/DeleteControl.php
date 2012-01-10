@@ -171,7 +171,7 @@ class DeleteControl extends \SnapCRUD\BaseControl
     public function addFileToUnlink($files)
     {
         if (is_string($files)) {
-            $files = array($filse);
+            $files = array($files);
         }
 
         foreach ($files as $file) {

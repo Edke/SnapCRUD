@@ -175,7 +175,7 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      * @return null|string
      * @throws \InvalidArgumentException|\LogicException
      */
-    protected function handleFile($control, $current)
+    public function handleFile($control, $current)
     {
         if ($control->getDestPath() == '') {
             throw new \InvalidArgumentException("Path is not defined for (" . $control->getName() . ").");
@@ -203,7 +203,8 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
             }
 
             // add new
-            $dest = File::findSafeDestination($full . DIRECTORY_SEPARATOR . $file->name);
+            $filename = $control->nameCallback ? call_user_func($control->nameCallback) : $file->getName();
+            $dest = File::findSafeDestination($full . DIRECTORY_SEPARATOR . $filename);
             $file->move($dest);
 
             if (\Nette\Utils\Strings::startsWith($dest, $base)) {
