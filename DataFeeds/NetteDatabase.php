@@ -101,7 +101,7 @@ class NetteDatabase implements IDataFeed {
         return $this;
     }
 
-    public function orderBy($row, $sorting = 'asc') {
+    public function orderBy($row, $sorting = 'ASC') {
         $this->getSelection()->order($row . ' ' . $sorting);
         return $this;
     }

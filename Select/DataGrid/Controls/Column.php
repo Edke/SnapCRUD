@@ -512,7 +512,7 @@ class Column extends \Nette\Object {
      * Sets casting of column
      * @param string $cast
      * @param string $castAlias
-     * @return this 
+     * @return this
      */
     public function setCast($cast, $castAlias) {
         $this->cast = $cast;
@@ -533,7 +533,7 @@ class Column extends \Nette\Object {
      * @return string
      */
     public function getCast() {
-        return $this->cast . ' as ' . $this->castAlias;
+        return $this->cast . ' AS ' . $this->castAlias;
     }
 
 }

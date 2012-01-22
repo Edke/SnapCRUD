@@ -316,9 +316,9 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @return string
      */
     public function getSortOrderClass($direction) {
-        if ($direction == 'asc') {
+        if ($direction == 'ASC') {
             return $this->defaultOrderByAscClass;
-        } elseif ($direction == 'desc') {
+        } elseif ($direction == 'DESC') {
             return $this->defaultOrderByDescClass;
         } else {
             throw new \Exception('Invalid direction');
@@ -608,7 +608,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     public function setDefaultOrderBy($columnSqlName, $direction) {
         if (!$this->isOrderByModified()) {
 
-            if ($direction != 'asc' and $direction != 'desc') {
+            if ($direction != 'ASC' and $direction != 'DESC') {
                 throw new \Exception("invalid direction '$direction' for field '$columnSqlName'");
             }
 
@@ -722,12 +722,12 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
             $orderBy = $this->context->sessionSection->orderBy;
         }
 
-        if (isset($orderBy->{$field}) and $orderBy->{$field} == 'asc') {
-            $orderBy->{$field} = 'desc';
-        } elseif (isset($orderBy->{$field}) and $orderBy->{$field} == 'desc') {
+        if (isset($orderBy->{$field}) and $orderBy->{$field} == 'ASC') {
+            $orderBy->{$field} = 'DESC';
+        } elseif (isset($orderBy->{$field}) and $orderBy->{$field} == 'DESC') {
             unset($orderBy->{$field});
         } else {
-            $orderBy->{$field} = 'asc';
+            $orderBy->{$field} = 'ASC';
         }
 
         # in single mode, unset namespace
