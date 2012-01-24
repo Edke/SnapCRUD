@@ -141,7 +141,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
         }
 
         $cache = new \Nette\Caching\Cache($this->getPresenter()->getContext()->templateCacheStorage, 'SnapCRUD.DataGrid');
-        $cacheKey = array($this->getPresenter()->getName(), $this->getPresenter()->getAction(), $this->getName());
+        $cacheKey = array($this->getPresenter()->getName(), $this->getPresenter()->getAction(), $this->getUniqueId());
         $cached = $cache->load($cacheKey);
         if (!$cached) {
             $file = __FILE__;
@@ -242,6 +242,7 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
             $code = $cache->save($cacheKey, implode("\n", $code), array(
                         \Nette\Caching\Cache::FILES => array(
                             __FILE__,
+                            $this->getParent()->getReflection()->getFilename(),
                             $this->getPresenter()->getReflection()->getFileName()
                             )));
 
