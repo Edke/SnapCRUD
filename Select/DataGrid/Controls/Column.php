@@ -204,14 +204,15 @@ class Column extends \Nette\Object {
         }
 
         # content
-        if ($this->bodyContentCb) {
-            $content = '<?= ' . $self . '->getBodyContentCb($row) ?>';
-            //$content = \call_user_func($this->bodyContentCb, $data, $this);
-        } else {
-            $content = '<?= $row->' . $columnName . ' ?>';
-            //$getter = 'get' . \ucfirst($this->getName());
-            //$content = $this->getParent()->getContext()->datafeed->getColumnFromRow($data, $this->getName());
-        }
+        $contentInner = $this->bodyContentCb ?
+            $self . '->getBodyContentCb($row)':
+            '$row->' . $columnName;
+        $content = $this->bodyContentHelper ?
+            '<?= '.$this->getParent()->getHelperClass().'::'.$this->bodyContentHelper .'('.$contentInner.') ?>' :
+            '<?= '.$contentInner. ' ?>';
+
+        \Nette\Diagnostics\Debugger::barDump($content);
+
 
         # anchor envelope
         if ($this->bodyLinkCb) {

@@ -16,6 +16,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * DataGrid properties
      */
     protected $columns = array(), $rows = array();
+    protected $helperClass;
 
     /**
      * Add column to DataGrid
@@ -327,6 +328,22 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
             $result->footer = $footer;
         }
         return $result;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHelperClass() {
+        return $this->helperClass;
+    }
+
+    /**
+     * @param $helperClass
+     * @return DataGridControl
+     */
+    public function setHelperClass($helperClass) {
+        $this->helperClass = $helperClass;
+        return $this;
     }
 
     /**
