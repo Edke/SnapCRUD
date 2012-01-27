@@ -141,7 +141,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
             }
         }
 
-        $cache = new \Nette\Caching\Cache($this->getPresenter()->getContext()->templateCacheStorage, 'SnapCRUD.DataGrid');
+        $cache = new \Nette\Caching\Cache($this->getPresenter()->getContext()->nette->templateCacheStorage, 'SnapCRUD.DataGrid');
         $cacheKey = array($this->getPresenter()->getName(), $this->getPresenter()->getAction(), $this->getUniqueId());
         $cached = $cache->load($cacheKey);
         if (!$cached) {
