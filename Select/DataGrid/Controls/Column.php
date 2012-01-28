@@ -211,9 +211,6 @@ class Column extends \Nette\Object {
             '<?= '.$this->getParent()->getHelperClass().'::'.$this->bodyContentHelper .'('.$contentInner.') ?>' :
             '<?= '.$contentInner. ' ?>';
 
-        \Nette\Diagnostics\Debugger::barDump($content);
-
-
         # anchor envelope
         if ($this->bodyLinkCb) {
             $el->add('<a href="<?= ' . $self . '->getBodyLinkCb($row) ?>">' . $content . '</a>');
