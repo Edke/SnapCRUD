@@ -2,15 +2,17 @@
 
 namespace SnapCRUD\Select\DataGrid;
 
-use Nette\Utils\Html;
+use Nette\Utils\Html,
+Nette\Caching\Cache;
 
 /**
  * DataGridControl
  *
- * @author	Eduard Kracmar <kracmar@dannax.sk>
- * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
+ * @author       Eduard Kracmar <kracmar@dannax.sk>
+ * @copyright    Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  */
-class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
+class DataGridControl extends \SnapCRUD\Select\BaseGridControl
+{
 
     /**
      * DataGrid properties
@@ -24,7 +26,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * @param string $label
      * @return Column
      */
-    public function addColumn($name, $label = null) {
+    public function addColumn($name, $label = null)
+    {
         $element = new Controls\Column($this, $name, $label);
         $safeName = $element->getName('safe');
 
@@ -43,7 +46,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * @param string $name
      * @return Row
      */
-    public function addRow($name) {
+    public function addRow($name)
+    {
         $element = new Row($this, $name);
 
         if ($this->hasRow($name)) {
@@ -58,7 +62,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * @param string $name
      * @return boolean
      */
-    public function hasColumn($name) {
+    public function hasColumn($name)
+    {
         $name = str_replace('.', '__', $name);
         return key_exists($name, $this->getColumns());
     }
@@ -68,7 +73,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * @param string $name
      * @return boolean
      */
-    public function hasRow($name) {
+    public function hasRow($name)
+    {
         return key_exists($name, $this->getRows());
     }
 
@@ -76,7 +82,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * Get columns
      * @return array of Column
      */
-    public function getColumns() {
+    public function getColumns()
+    {
         return $this->columns;
     }
 
@@ -84,7 +91,8 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * Get column with $name
      * @return Column
      */
-    public function getColumn($name) {
+    public function getColumn($name)
+    {
         $name = str_replace('.', '__', $name);
         return $this->hasColumn($name) ? $this->columns[$name] : false;
     }
@@ -93,19 +101,20 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
      * Get rows
      * @return array of Row
      */
-    public function getRows() {
+    public function getRows()
+    {
         return $this->rows;
     }
 
     /**
      * Build grid
      */
-    public function build() {
+    public function build()
+    {
         parent::build();
 
         # stop if already builded
-        if ($this->builded)
-        {
+        if ($this->builded) {
             return;
         }
 
@@ -141,7 +150,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
             }
         }
 
-        $cache = new \Nette\Caching\Cache($this->getPresenter()->getContext()->nette->templateCacheStorage, 'SnapCRUD.DataGrid');
+        $cache = new Cache($this->getPresenter()->getContext()->nette->templateCacheStorage, 'SnapCRUD.DataGrid');
         $cacheKey = array($this->getPresenter()->getName(), $this->getPresenter()->getAction(), $this->getUniqueId());
         $cached = $cache->load($cacheKey);
         if (!$cached) {
@@ -150,9 +159,9 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
             $code = array();
             $code[] = '<?php ob_start(); ?>';
             $code[] = Html::el('table')->width('100%')
-                            ->class('datagrid')
-                            ->data('autorefresh-signal', $this->autorefreshSignal)
-                            ->data('autorefresh-interval', $this->autorefreshInterval)->startTag();
+                ->class('datagrid')
+                ->data('autorefresh-signal', $this->autorefreshSignal)
+                ->data('autorefresh-interval', $this->autorefreshInterval)->startTag();
 
             # 1st iteration, header and colgroup
             $colgroup = Html::el('colgroup');
@@ -179,7 +188,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                     }
 
                     # header
-                    $text = $column->label ? '<?= _("'.$column->label.'");?>' : '&nbsp;';
+                    $text = $column->label ? '<?= _("' . $column->label . '");?>' : '&nbsp;';
                     if ($column->isSortable()) {
                         $header->add(sprintf('<th class="<?= $control->getColumn("%s")->getHeaderClass(); ?>"><a href="%s">%s</a></th>', $column->getName('safe'), $this->link('orderby!', $column->getName('sql')), $text));
                     } else {
@@ -203,7 +212,7 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl {
                         } elseif (is_callable($column->footerContentCb)) {
                             $content = '<?= \call_user_func($control->getColumn("' . $column->getName() . '")->footerContentCb, $control); ?>';
                         } elseif ($column->footerAggregate) {
-                            $content = '<?= $control->context->datafeed->aggregation("'. $column->footerAggregate. '");?>';
+                            $content = '<?= $control->context->datafeed->aggregation("' . $column->footerAggregate . '");?>';
                         }
                     }
                     $footer->add(sprintf("<th%s>%s</th>\n", $column->getFooterClass(), $content));
@@ -260,7 +269,8 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
      * Get content for ajax refreshing of drid content
      * @return \stdClass
      */
-    public function getAutorefreshContent() {
+    public function getAutorefreshContent()
+    {
 
         # conditions
         $this->applyConditions();
@@ -288,7 +298,7 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
 
         # body content from rows
         foreach ($this->getRows() as $row) {
-            $result->rows[] = (string) $row->getHtml();
+            $result->rows[] = (string)$row->getHtml();
         }
 
         # body content from columns
@@ -299,7 +309,7 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
             foreach ($this->getColumns() as $column) {
                 $body = $column->getBody($row);
                 if ($column->isVisible()) {
-                    $bodyRow[] = (string) $body;
+                    $bodyRow[] = (string)$body;
                 }
             }
 
@@ -314,9 +324,9 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
             if ($column->isVisible()) {
                 if ($first && $this->hasCheckboxes()) {
                     $first = false;
-                    $footer[] = (string) Html::el('th')->setHtml('&nbsp;');
+                    $footer[] = (string)Html::el('th')->setHtml('&nbsp;');
                 }
-                $footer[] = (string) $column->getFooter();
+                $footer[] = (string)$column->getFooter();
                 if ($column->hasFooter()) {
                     $hasFooter = true;
                 }
@@ -333,7 +343,8 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
     /**
      * @return mixed
      */
-    public function getHelperClass() {
+    public function getHelperClass()
+    {
         return $this->helperClass;
     }
 
@@ -341,7 +352,8 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
      * @param $helperClass
      * @return DataGridControl
      */
-    public function setHelperClass($helperClass) {
+    public function setHelperClass($helperClass)
+    {
         $this->helperClass = $helperClass;
         return $this;
     }
@@ -350,17 +362,19 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
      * Get empty container
      * @return Html
      */
-    public function getEmptyContent() {
+    public function getEmptyContent()
+    {
         $container = Html::el('');
         $container->add(Html::el('table')->width('100%')
-                        ->class('datagrid')->add(Html::el('tr')->add(Html::el('td')->add(Html::el('p')->setText(_('No records found.'))))));
+            ->class('datagrid')->add(Html::el('tr')->add(Html::el('td')->add(Html::el('p')->setText(_('No records found.'))))));
         return $container;
     }
 
     /**
      * Apply column's conditions
      */
-    protected function applyConditions() {
+    protected function applyConditions()
+    {
         parent::applyConditions();
 
         # column conditions
@@ -368,7 +382,8 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
             foreach ($column->getConditions() as $condition) {
                 $columnName = $condition->getParent()->getName('safe');
                 if (isset($this->context->sessionSection->search[$columnName])
-                        and !empty($this->context->sessionSection->search[$columnName])) {
+                    and !empty($this->context->sessionSection->search[$columnName])
+                ) {
 
                     $this->context->datafeed->where($condition->getQuery(), $this->context->sessionSection->search[$columnName]
                     );
