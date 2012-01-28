@@ -3,26 +3,27 @@
 namespace SnapCRUD\Select;
 
 use Nette\Application\UI\Control,
-    Nette\Application\UI\Form,
-    Nette\Utils\Paginator,
-    Nette\Forms\Controls\SubmitButton,
-    Nette\DI;
+Nette\Application\UI\Form,
+Nette\Utils\Paginator,
+Nette\Forms\Controls\SubmitButton,
+Nette\DI;
 
 /**
  * BaseGridControl
  *
- * @author	Eduard Kracmar <kracmar@dannax.sk>
- * @copyright	Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
+ * @author       Eduard Kracmar <kracmar@dannax.sk>
+ * @copyright    Copyright (c) 2006-2011 Eduard Kracmar, DANNAX (http://www.dannax.sk)
  * @abstract
  */
-abstract class BaseGridControl extends \SnapCRUD\BaseControl {
+abstract class BaseGridControl extends \SnapCRUD\BaseControl
+{
 
     /**
      * Configuring properties
      */
     protected $useSort = true, $useSingleColumnSort = true, $usePaginator = true, $defaultOrderByCounter = 0,
-    $defaultOrderByAscClass = 'headerSortUp', $defaultOrderByDescClass = 'headerSortDown',
-    $autorefreshSignal, $autorefreshInterval, $buildOnlyWhenSearchSet = false, $checkboxesContainer;
+        $defaultOrderByAscClass = 'headerSortUp', $defaultOrderByDescClass = 'headerSortDown',
+        $autorefreshSignal, $autorefreshInterval, $buildOnlyWhenSearchSet = false, $checkboxesContainer;
     /**
      * Core
      */
@@ -64,7 +65,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Render grid
      * @return string
      */
-    public function render() {
+    public function render()
+    {
         if (!$this->isBuilded()) {
             $this->build();
         }
@@ -82,14 +84,16 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     /**
      * Build grid
      */
-    public function build() {
+    public function build()
+    {
 
     }
 
     /**
      * Apply grid's conditions, query added in callback
      */
-    protected function applyConditions() {
+    protected function applyConditions()
+    {
         foreach ($this->conditions as $condition) {
             if ($condition->hasCallback()) {
                 call_user_func($condition->getCallback(), $this);
@@ -100,10 +104,11 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     /**
      * Register helper
      * @param string $name
-     * @param array $callback
+     * @param array  $callback
      * @return this
      */
-    public function registerHelper($name, $callback) {
+    public function registerHelper($name, $callback)
+    {
         if ($this->hasHelper($name)) {
             throw new \Exception("Helper '$name' is already registered.");
         }
@@ -116,7 +121,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $name
      * @return boolean
      */
-    public function hasHelper($name) {
+    public function hasHelper($name)
+    {
         return \key_exists($name, $this->helpers);
     }
 
@@ -125,7 +131,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $name
      * @return callback
      */
-    public function getHelper($name) {
+    public function getHelper($name)
+    {
         return $this->hasHelper($name) ? $this->helpers[$name] : false;
     }
 
@@ -133,7 +140,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets datafeed
      * @return \SnapCRUD\DataFeeds\IDataFeed
      */
-    public function getDatafeed() {
+    public function getDatafeed()
+    {
         return $this->context->datafeed;
     }
 
@@ -144,13 +152,14 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
     /**
      * Add button to toolbar
      *
-     * @param string $name
-     * @param string $label
+     * @param string   $name
+     * @param string   $label
      * @param callback $callback
-     * @param string $cardinality
+     * @param string   $cardinality
      * @return Button
      */
-    public function addButton($name, $label, $callback = null, $cardinality = null) {
+    public function addButton($name, $label, $callback = null, $cardinality = null)
+    {
         $this->hasToolbar = true;
         $this->hasCheckboxes = true;
 
@@ -161,7 +170,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
 
         if ($cardinality) {
             $element->getControlPrototype()
-                    ->class($cardinality, true);
+                ->class($cardinality, true);
         }
 
         $this->getToolbar()->addComponent($element, $name);
@@ -176,7 +185,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets form
      * @return Form
      */
-    public function getForm() {
+    public function getForm()
+    {
         if (!$this->form) {
             $this->form = new Form($this, 'form');
             $this->form->setTranslator($this->context->translator);
@@ -187,22 +197,24 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
             $grid = $this;
             $searchSubmits = $this->form->addContainer('searchSubmits');
             $searchSubmits->addSubmit('search', 'Search')
-                    ->onClick[] = function(SubmitButton $button) {
-                        $button->getForm()->getParent()->getContext()->sessionSection->page = 1;
-                        $button->getForm()->getParent()->getContext()->sessionSection->search = $button->getForm()
-                                ->getParent()
-                                ->getSearchControls()
-                                ->getValues();
-                        $button->getForm()->getPresenter()->redirect('this');
-                    };
+                ->onClick[] = function(SubmitButton $button)
+            {
+                $button->getForm()->getParent()->getContext()->sessionSection->page = 1;
+                $button->getForm()->getParent()->getContext()->sessionSection->search = $button->getForm()
+                    ->getParent()
+                    ->getSearchControls()
+                    ->getValues();
+                $button->getForm()->getPresenter()->redirect('this');
+            };
             //$this->search['apply']->getControlPrototype();
             $searchSubmits->addSubmit('erase', 'Reset')
-                    ->onClick[] = function(SubmitButton $button) {
-                        unset($button->getForm()->getParent()->getContext()->sessionSection->search);
-                        $button->getForm()
-                                ->getPresenter()
-                                ->redirect('this');
-                    };
+                ->onClick[] = function(SubmitButton $button)
+            {
+                unset($button->getForm()->getParent()->getContext()->sessionSection->search);
+                $button->getForm()
+                    ->getPresenter()
+                    ->redirect('this');
+            };
             //$this->search['erase']->getControlPrototype();
         }
         return $this->form;
@@ -212,7 +224,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets toolbar container
      * @return \Nette\Forms\Container
      */
-    public function getToolbar() {
+    public function getToolbar()
+    {
         return $this->getForm()->offsetGet('toolbar');
     }
 
@@ -220,7 +233,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets container for search controls
      * @return \Nette\Forms\Container
      */
-    public function getSearchControls() {
+    public function getSearchControls()
+    {
         return $this->getForm()->offsetGet('searchControls');
     }
 
@@ -228,7 +242,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets container for search buttons
      * @return \Nette\Forms\Container
      */
-    public function getSearchSubmits() {
+    public function getSearchSubmits()
+    {
         return $this->getForm()->offsetGet('searchSubmits');
     }
 
@@ -236,7 +251,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets container for checkboxes
      * @return \Nette\Forms\Container
      */
-    public function getCheckboxes() {
+    public function getCheckboxes()
+    {
         $container = $this->checkboxesContainer . 'checkboxes';
         if (!$this->getForm()->offsetExists($container)) {
             $this->getForm()->addContainer($container);
@@ -248,7 +264,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Callback for Add button
      * @param SubmitButton $button
      */
-    public function controls_onAdd(SubmitButton $button) {
+    public function controls_onAdd(SubmitButton $button)
+    {
         $this->getPresenter()->redirect($this->defaultAddAction);
     }
 
@@ -256,7 +273,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Callback for Edit button
      * @param SubmitButton $button
      */
-    public function controls_onEdit(SubmitButton $button) {
+    public function controls_onEdit(SubmitButton $button)
+    {
         $this->getPresenter()->redirect($this->defaultEditAction, $this->getSelectedRow());
     }
 
@@ -264,7 +282,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Callback for Delete button
      * @param SubmitButton $button
      */
-    public function controls_onDelete(SubmitButton $button) {
+    public function controls_onDelete(SubmitButton $button)
+    {
         $key = $this->getPresenter()->storeValues($this->getSelectedRows());
         $this->getPresenter()->redirect($this->defaultDeleteAction, array('sl' => $key));
     }
@@ -275,23 +294,25 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param boolean $hidden
      * @return Html
      */
-    public function createCheckbox($rowId, $hidden= false) {
+    public function createCheckbox($rowId, $hidden = false)
+    {
         if ($hidden) {
             throw new \Nette\NotImplementedException('Hidden checkbox not implemented yet');
         }
         $checkbox = $this->getCheckboxes()
-                ->addCheckbox($rowId, 'Checkbox for row ' . $rowId)
-                ->setOption('gridrendered', true);
+            ->addCheckbox($rowId, 'Checkbox for row ' . $rowId)
+            ->setOption('gridrendered', true);
         return $checkbox->getControl();
     }
 
     /**
      * Adds search control
-     * @param string $name
+     * @param string                           $name
      * @param \Nette\ComponentModel\IComponent $control
      * @return this
      */
-    public function addSearch($name, \Nette\ComponentModel\IComponent $control) {
+    public function addSearch($name, \Nette\ComponentModel\IComponent $control)
+    {
         $this->hasSearch = true;
         $this->getSearchControls()->addComponent($control, $name);
         return $this;
@@ -301,7 +322,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Get current search values
      * @return array
      */
-    public function getSearchValues() {
+    public function getSearchValues()
+    {
         $search = $this->context->sessionSection->search;
         return $search instanceof \Nette\ArrayHash && count($search) ? $search : array();
     }
@@ -315,7 +337,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param striong $direction (asc|desc)
      * @return string
      */
-    public function getSortOrderClass($direction) {
+    public function getSortOrderClass($direction)
+    {
         if ($direction == 'ASC') {
             return $this->defaultOrderByAscClass;
         } elseif ($direction == 'DESC') {
@@ -329,7 +352,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets selected row
      * @return integer
      */
-    public function getSelectedRow() {
+    public function getSelectedRow()
+    {
         $selected = $this->getSelectedRows();
         if (count($selected) > 1) {
             throw new \Nette\Application\AbortException('Selected more than 1 row');
@@ -343,12 +367,13 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Gets array of selected rows
      * @return array
      */
-    public function getSelectedRows() {
+    public function getSelectedRows()
+    {
         $this->build();
         $selected = array();
         foreach ($this->getCheckboxes()->getValues() as $id => $checked) {
             if ($checked) {
-                $selected[] = (integer) $id;
+                $selected[] = (integer)$id;
             }
         }
         return $selected;
@@ -358,11 +383,13 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Get table
      * @return string
      */
-    public function getContent() {
+    public function getContent()
+    {
         return $this->content;
     }
 
-    public function getPage() {
+    public function getPage()
+    {
         if (!$this->context->sessionSection->page) {
 
             $this->context->sessionSection->page = 1;
@@ -374,7 +401,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Get Paginator
      * @return Paginator
      */
-    public function getPaginator() {
+    public function getPaginator()
+    {
         if (!$this->paginator) {
             $paginator = new Paginator;
             $paginator->setItemsPerPage($this->itemsPerPage);
@@ -389,7 +417,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Get array of paginator steps
      * @return array
      */
-    public function getPaginatorSteps() {
+    public function getPaginatorSteps()
+    {
         $paginator = $this->getPaginator();
         $steps = range(max($paginator->getFirstPage(), $paginator->getPage() - $this->surround), min($paginator->getLastPage(), $paginator->getPage() + $this->surround));
         $quadrants = ($paginator->getPageCount() - 1) / $this->quadrants;
@@ -409,7 +438,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether grid has any content
      * @return boolean
      */
-    public function hasContent() {
+    public function hasContent()
+    {
         return $this->hasContent && true;
     }
 
@@ -417,7 +447,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether grid has checkbox for each item
      * @return boolean
      */
-    public function hasCheckboxes() {
+    public function hasCheckboxes()
+    {
         return $this->hasCheckboxes && true;
     }
 
@@ -425,7 +456,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether grid has toolbar
      * @return boolean
      */
-    public function hasToolbar() {
+    public function hasToolbar()
+    {
         return $this->hasToolbar && true;
     }
 
@@ -433,7 +465,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether grid has search set
      * @return boolean
      */
-    public function hasSearch() {
+    public function hasSearch()
+    {
         return $this->hasSearch && true;
     }
 
@@ -441,7 +474,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether grid table is builded
      * @return boolean
      */
-    public function isBuilded() {
+    public function isBuilded()
+    {
         return $this->builded && true;
     }
 
@@ -449,7 +483,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether orderBy was modified or to use defaults
      * @return boolean
      */
-    public function isOrderByModified() {
+    public function isOrderByModified()
+    {
         if (!isset($this->context->sessionSection->orderByModified)) {
             $this->context->sessionSection->orderByModified = false;
         }
@@ -460,7 +495,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether use paginator or show all records
      * @return boolean
      */
-    public function isPaginated() {
+    public function isPaginated()
+    {
         return $this->usePaginator && true;
     }
 
@@ -472,7 +508,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Turn on single column sorting
      * @return this
      */
-    public function useSingleColumnSort() {
+    public function useSingleColumnSort()
+    {
         $this->useSingleColumnSort = true;
         return $this;
     }
@@ -481,7 +518,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Turn on multi column sorting
      * @return this
      */
-    public function useMultiColumnSort() {
+    public function useMultiColumnSort()
+    {
         $this->useSingleColumnSort = false;
         return $this;
     }
@@ -491,7 +529,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param boolean $use
      * @return this
      */
-    public function usePaginator($use) {
+    public function usePaginator($use)
+    {
         $this->usePaginator = $use;
         return $this;
     }
@@ -501,7 +540,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param boolean $state
      * @return this
      */
-    public function useCheckboxes($state = true) {
+    public function useCheckboxes($state = true)
+    {
         $this->hasCheckboxes = $state;
         return $this;
     }
@@ -511,7 +551,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param integer $itemsPerPage
      * @return this
      */
-    public function setItemsPerPage($itemsPerPage) {
+    public function setItemsPerPage($itemsPerPage)
+    {
         $this->itemsPerPage = $itemsPerPage;
         return $this;
     }
@@ -521,7 +562,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $title
      * @return this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->template->title = $title;
         return $this;
     }
@@ -531,7 +573,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param Form $form
      * @return this
      */
-    public function setForm(Form $form) {
+    public function setForm(Form $form)
+    {
         $this->form = $form;
         return $this;
     }
@@ -541,7 +584,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $name
      * @return this
      */
-    public function addDefaultButtons($name = null) {
+    public function addDefaultButtons($name = null)
+    {
         $name = is_null($name) ? '' : ' ' . $name;
 
         $this->addButton('add', 'Add' . $name, array($this, 'controls_onAdd'))
@@ -560,7 +604,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $action
      * @return this
      */
-    public function setDefaultAddAction($action) {
+    public function setDefaultAddAction($action)
+    {
         $this->defaultAddAction = $action;
         return $this;
     }
@@ -570,7 +615,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $action
      * @return this
      */
-    public function setDefaultEditAction($action) {
+    public function setDefaultEditAction($action)
+    {
         $this->defaultEditAction = $action;
         return $this;
     }
@@ -579,13 +625,15 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Set autorefresh signal
      * @param string $signal
      */
-    public function setAutorefresh($signal, $interval = 3000) {
+    public function setAutorefresh($signal, $interval = 3000)
+    {
         $this->autorefreshSignal = $signal;
         $this->autorefreshInterval = $interval;
         return $this;
     }
 
-    public function setContent($content) {
+    public function setContent($content)
+    {
         $this->content = $content;
     }
 
@@ -594,7 +642,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $action
      * @return this
      */
-    public function setDefaultDeleteAction($action) {
+    public function setDefaultDeleteAction($action)
+    {
         $this->defaultDeleteAction = $action;
         return $this;
     }
@@ -605,7 +654,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $direction (asc|desc)
      * @return this
      */
-    public function setDefaultOrderBy($columnSqlName, $direction) {
+    public function setDefaultOrderBy($columnSqlName, $direction)
+    {
         if (!$this->isOrderByModified()) {
 
             if ($direction != 'ASC' and $direction != 'DESC') {
@@ -613,7 +663,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
             }
 
             if (!isset($this->context->sessionSection->orderBy)) {
-                $this->context->sessionSection->orderBy = (object) array();
+                $this->context->sessionSection->orderBy = (object)array();
             }
 
             # single column mode
@@ -622,7 +672,7 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
                     throw new \Exception("multiple default sort definitions in SingleColumnSort mode");
                 }
                 unset($this->context->sessionSection->orderBy);
-                $this->context->sessionSection->orderBy = (object) array($columnSqlName => $direction);
+                $this->context->sessionSection->orderBy = (object)array($columnSqlName => $direction);
             } else {
                 $this->context->sessionSection->orderBy->{$columnSqlName} = $direction;
             }
@@ -636,7 +686,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $name
      * @return this
      */
-    public function setButtonsGroup($name) {
+    public function setButtonsGroup($name)
+    {
         throw new \Nette\NotSupportedException();
         $this->buttonsGroup = $name;
         return $this;
@@ -647,7 +698,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param type $build
      * @return GridControl
      */
-    public function setBuildOnlyWithSearchSet($build) {
+    public function setBuildOnlyWithSearchSet($build)
+    {
         $this->buildOnlyWhenSearchSet = $build;
         return $this;
     }
@@ -657,7 +709,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $container
      * @return this
      */
-    public function setCheckboxesContainer($container) {
+    public function setCheckboxesContainer($container)
+    {
         $this->checkboxesContainer = $container;
         return $this;
     }
@@ -666,7 +719,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Disable sorting
      * @return this
      */
-    public function disableSorting() {
+    public function disableSorting()
+    {
         $this->useSort = false;
         return $this;
     }
@@ -675,7 +729,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether to build datagrid when search is not set
      * @return boolean
      */
-    public function buildOnlyWhenSearchSet() {
+    public function buildOnlyWhenSearchSet()
+    {
         return true && $this->buildOnlyWhenSearchSet;
     }
 
@@ -683,7 +738,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Determines whether search is set
      * @return boolean
      */
-    public function hasSearchSet() {
+    public function hasSearchSet()
+    {
         return true && $this->hasSearchSet;
     }
 
@@ -691,7 +747,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * translate message
      * @return <type>
      */
-    public function translate($message, $count = null) {
+    public function translate($message, $count = null)
+    {
         return $this->context->translator->translate($message, $count);
     }
 
@@ -708,14 +765,15 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param string $field
      * @return void
      */
-    public function handleOrderBy($field) {
+    public function handleOrderBy($field)
+    {
         if (empty($field)) {
             throw new Exception('field required');
         }
 
         # singleColumnSort
         if ($this->useSingleColumnSort) {
-            $orderBy = ( isset($this->context->sessionSection->orderBy->{$field})) ? $this->context->sessionSection->orderBy : new \stdClass;
+            $orderBy = (isset($this->context->sessionSection->orderBy->{$field})) ? $this->context->sessionSection->orderBy : new \stdClass;
         }
         # multiColumnSort
         else {
@@ -744,7 +802,8 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * Handler for page
      * @param integer $page
      */
-    public function handlePage($page) {
+    public function handlePage($page)
+    {
         if (!is_numeric($page)) {
             throw new \Nette\Application\AbortException("Invalid handler argument");
         }
@@ -761,14 +820,16 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl {
      * @param callback $callback
      * @return Condition
      */
-    public function addConditionCb($callback) {
+    public function addConditionCb($callback)
+    {
         $condition = new Controls\Condition($this);
         $condition->setCallback($callback);
         $this->conditions[] = $condition;
         return $condition;
     }
 
-    public function setHasContent($hasContent) {
+    public function setHasContent($hasContent)
+    {
         $this->hasContent = $hasContent;
     }
 
