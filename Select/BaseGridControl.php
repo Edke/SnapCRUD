@@ -587,15 +587,23 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl
     public function addDefaultButtons($name = null)
     {
         $name = is_null($name) ? '' : ' ' . $name;
+        $presenter = $this->presenter;
 
-        $this->addButton('add', 'Add' . $name, array($this, 'controls_onAdd'))
+        if ($presenter->isUserAllowed('add')) {
+            $this->addButton('add', 'Add' . $name, array($this, 'controls_onAdd'))
                 ->setButtonSet('main');
+        }
 
-        $this->addButton('edit', 'Edit' . $name, array($this, 'controls_onEdit'), 'for_one')
+        if ($presenter->isUserAllowed('edit')) {
+            $this->addButton('edit', 'Edit' . $name, array($this, 'controls_onEdit'), 'for_one')
                 ->setButtonSet('main');
+        }
 
-        $this->addButton('delete', 'Delete' . $name, array($this, 'controls_onDelete'), 'for_many')
+        if ($presenter->isUserAllowed('delete')) {
+            $this->addButton('delete', 'Delete' . $name, array($this, 'controls_onDelete'), 'for_many')
                 ->setButtonSet('main');
+        }
+
         return $this;
     }
 
