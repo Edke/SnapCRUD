@@ -250,11 +250,12 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
             $code[] = '<?php $control->setContent(ob_get_contents()); ob_clean(); ?>';
 
             $code = $cache->save($cacheKey, implode("\n", $code), array(
-                        \Nette\Caching\Cache::FILES => array(
-                            __FILE__,
-                            $this->getParent()->getReflection()->getFilename(),
-                            $this->getPresenter()->getReflection()->getFileName()
-                            )));
+                Cache::TAGS                 => array('Acl'),
+                Cache::FILES                => array(
+                    __FILE__,
+                    $this->getParent()->getReflection()->getFilename(),
+                    $this->getPresenter()->getReflection()->getFileName()
+                )));
 
             \Nette\Utils\LimitedScope::evaluate($code, array('control' => $control));
         } else {
