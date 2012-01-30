@@ -182,6 +182,49 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl
     }
 
     /**
+     * Adds impersonate button
+     * @param string $name
+     * @param string $label
+     * @param array  $allowedRoles
+     * @param string $destination
+     * @param string $returnDestination
+     * @return Button
+     * @throws \Nette\Application\ForbiddenRequestException
+     */
+    public function addButtonImpersonate($name, $label, $allowedRoles, $destination, $returnDestination)
+    {
+        $button = $this->addButton($name, $label, function(SubmitButton $button) use ($allowedRoles, $destination, $returnDestination)
+        {
+            /** @var Control */
+            $control = $button->getForm()->getParent();
+            $presenter = $control->presenter;
+            $impersonatee = $presenter->getDatabaseUser($control->getSelectedRow());
+            $impersonatorIdentity = $presenter->getUser()->getIdentity();
+
+            try {
+                if (!in_array($presenter->getUser()->getIdentity()->role, $allowedRoles)) {
+                    throw new \Nette\Application\ForbiddenRequestException('Impersonate functionality not available for your role.');
+                }
+                if ($impersonatorIdentity->impersonator) {
+                    throw new \Nette\Application\ForbiddenRequestException('Already impersonated.');
+                }
+                if ($presenter->getUser()->getId() == $impersonatee->id) {
+                    throw new \Nette\Application\ForbiddenRequestException("Can't impersonate yourself.");
+                }
+                $presenter->getUser()->impersonate($impersonatee, $returnDestination);
+            } catch (\Exception $e) {
+                $presenter->flashMessage($e->getMessage(), 'error');
+                $presenter->redirect('this');
+            }
+
+            $presenter->flashMessage('Impersonated for user ' . $impersonatee->full_name . ', use with care!', 'ok');
+            $presenter->redirect($destination);
+
+        }, 'for_one');
+        return $button;
+    }
+
+    /**
      * Gets form
      * @return Form
      */
