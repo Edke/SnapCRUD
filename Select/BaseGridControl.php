@@ -428,6 +428,9 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl
      */
     public function getContent()
     {
+        if (!$this->isBuilded()) {
+            $this->build();
+        }
         return $this->content;
     }
 
@@ -673,12 +676,13 @@ abstract class BaseGridControl extends \SnapCRUD\BaseControl
     }
 
     /**
-     * Set autorefresh signal
      * @param string $signal
+     * @param int    $interval
+     * @return BaseGridControl
      */
-    public function setAutorefresh($signal, $interval = 3000)
+    public function setAutorefresh($interval = 3000)
     {
-        $this->autorefreshSignal = $signal;
+        $this->autorefreshSignal = $this->getUniqueId(). '-autorefresh';
         $this->autorefreshInterval = $interval;
         return $this;
     }

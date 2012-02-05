@@ -243,7 +243,7 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
                     $code[] = $column->getBodyTemplate();
                 }
             }
-
+            $code[] = '</tr>';
             $code[] = '<?php } ?>';
             $code[] = '</tbody>';
             $code[] = '</table>';
@@ -266,79 +266,31 @@ $id = $control->context->datafeed->getColumnFromRow($row, "id");
         return;
     }
 
-    /**
-     * Get content for ajax refreshing of drid content
-     * @return \stdClass
-     */
-    public function getAutorefreshContent()
+
+    public function handleAutorefresh()
     {
+        $presenter = $this->presenter;
+        if ($presenter->isAjax()) {
+            $payload = $presenter->getPayload();
+            $content = $this->getContent();
+            $columns = array();
 
-        # conditions
-        $this->applyConditions();
-
-        # create feed without pagination and orders
-        #$this->context->datafeed->cloneFromActive('raw');
-        # paginator limits
-        if ($this->isPaginated()) {
-            $this->context->datafeed->applyLimit($this->getPaginator()->getLength(), $this->getPaginator()->getOffset());
-        }
-
-        # order by
-        if ($this->useSort) {
-            foreach ($this->context->sessionSection->orderBy as $orderField => $orderDirection) {
-                $this->context->datafeed->orderBy($orderField, $orderDirection);
-            }
-        }
-
-        # body
-        $result = new \stdClass;
-        $result->rows = array();
-        $result->columns = array();
-        $result->hasCheckboxes = $this->hasCheckboxes();
-        $result->hasFooter = false;
-
-        # body content from rows
-        foreach ($this->getRows() as $row) {
-            $result->rows[] = (string)$row->getHtml();
-        }
-
-        # body content from columns
-        foreach ($this->context->datafeed->getIterator() as $row) {
-            $bodyRow = array();
-            $this->hasContent = true;
-
-            foreach ($this->getColumns() as $column) {
-                $body = $column->getBody($row);
-                if ($column->isVisible()) {
-                    $bodyRow[] = (string)$body;
+            $result = preg_match_all('#<tr class.*checkboxes\[(\d+)\](.*)</tr>#msU', $content, $lines);
+            if ($result !== false) {
+                foreach ($lines[2] as $key => $line) {
+                    $columns[$lines[1][$key]] = array();
+                    $result = preg_match_all('#(<td[^>]*>.*</td>)#msU', $line, $cols);
+                    if ($result !== false) {
+                        foreach ($cols[1] as $cell) {
+                            $columns[$lines[1][$key]][] = $cell;
+                        }
+                    }
                 }
             }
-
-            $result->columns[$row->getId()] = $bodyRow;
+            $payload->columns = $columns;
+            $payload->hasCheckboxes = $this->hasCheckboxes();
+            $presenter->sendPayload();
         }
-
-        # tfoot
-        $first = true;
-        $footer = array();
-        $hasFooter = false;
-        foreach ($this->getColumns() as $column) {
-            if ($column->isVisible()) {
-                if ($first && $this->hasCheckboxes()) {
-                    $first = false;
-                    $footer[] = (string)Html::el('th')->setHtml('&nbsp;');
-                }
-                $footer[] = (string)$column->getFooter();
-                if ($column->hasFooter()) {
-                    $hasFooter = true;
-                }
-            }
-        }
-
-        if ($hasFooter) {
-            $result->hasFooter = true;
-            $result->footer = $footer;
-        }
-        return $result;
     }
 
     /**
