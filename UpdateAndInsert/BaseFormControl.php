@@ -146,7 +146,6 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
     }
 
 
-
     /**
      * Getter for file transaction
      * @return FileTransaction
@@ -226,8 +225,6 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
             throw new \LogicException('invalid case');
         }
     }
-
-
 
 
 }
