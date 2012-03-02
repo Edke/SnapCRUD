@@ -204,7 +204,11 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
 
             // add new
             $filename = $control->nameCallback ? call_user_func($control->nameCallback) : $file->getName();
-            $dest = File::findSafeDestination($full . DIRECTORY_SEPARATOR . $filename);
+            $dest = ($control->isSafeDestination()) ?
+                File::findSafeDestination($full . DIRECTORY_SEPARATOR . $filename) :
+                $full . DIRECTORY_SEPARATOR . $filename;
+
+            $dest = preg_replace('#/+#', '/', $dest);
             $file->move($dest);
 
             if (\Nette\Utils\Strings::startsWith($dest, $base)) {
