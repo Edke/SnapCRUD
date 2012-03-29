@@ -209,9 +209,10 @@ class NetteDatabase implements IDataFeed {
 
         if ($id > 0) {
             $row = $this->getSelection()->get($id);
+            $rowArray = $row->toArray();
             # update row values
             foreach ($values as $column => $value) {
-                if ($row->offsetExists($column)) {
+                if (key_exists($column, $rowArray)) {
                     $row->offsetSet($column, $this->normalizeRow($value, $meta[$column]->typname));
                 }
             }
