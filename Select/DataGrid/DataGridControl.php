@@ -151,7 +151,12 @@ class DataGridControl extends \SnapCRUD\Select\BaseGridControl
         }
 
         $cache = new Cache($this->getPresenter()->getContext()->nette->templateCacheStorage, 'SnapCRUD.DataGrid');
-        $cacheKey = array($this->getPresenter()->getName(), $this->getPresenter()->getAction(), $this->getUniqueId());
+        $cacheKey = array(
+            $this->getPresenter()->getName(),
+            $this->getPresenter()->getAction(),
+            $this->getUniqueId(),
+            $this->getPresenter()->getUserRole()
+        );
         $cached = $cache->load($cacheKey);
         if (!$cached) {
             $file = __FILE__;
