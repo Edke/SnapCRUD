@@ -214,7 +214,12 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     public function templatePrepareFilters($template)
     {
         $template->registerFilter($this->context->latteEngine);
-        $template->registerHelper('texy', array($this->context->texy, 'process'));
+
+        # Texy
+        $texy = $this->context->texy;
+        $template->registerHelper('texy', function($s) use ($texy){
+            return $texy->process($s);
+        });
     }
 
 }
