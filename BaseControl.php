@@ -207,14 +207,21 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     }
 
     /**
-     * @inheritdoc
-     * @param  \Nette\Templating\Template
-     * @return void
+     * @param null $class
+     * @return \Nette\Application\UI\Nette\Templating\ITemplate
      */
-    public function templatePrepareFilters($template)
+    protected function createTemplate($class = NULL)
     {
-        $template->registerFilter($this->context->latteEngine);
-        $template->registerHelper('texy', array($this->context->texy, 'process'));
-    }
+        $template = parent::createTemplate($class);
+        $context = $this->context;
 
+        $template->onPrepareFilters[] = function($template) use ($context) {
+            $template->registerFilter($context->latteEngine);
+        };
+
+        $template->registerHelper('texy', function($s) use ($context){
+            return $context->texy->process($s);
+        });
+        return $template;
+    }
 }
