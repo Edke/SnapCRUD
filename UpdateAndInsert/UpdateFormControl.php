@@ -83,7 +83,7 @@ class UpdateFormControl extends BaseFormControl
         } elseif ($this->getForm()->isSubmitted()) {
             $this->state = UpdateFormControl::STATE_UPDATE;
         } else {
-            throw new Exception('Unable to determine state');
+            throw new \Exception('Unable to determine state');
         }
 
         # defaults
