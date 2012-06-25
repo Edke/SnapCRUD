@@ -203,7 +203,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control
                 $parts[] = $arg;
             }
         }
-        return md5($this->getPresenter()->getContext()->params['application']['md5Salt'] . implode('|', $parts));
+        return md5($this->getPresenter()->getContext()->parameters['application']['md5Salt'] . implode('|', $parts));
     }
 
     /**
