@@ -63,14 +63,12 @@ abstract class BaseControl extends \Nette\Application\UI\Control
         # lazy cacheStorage
         $this->context->addService('cacheStorage', function() use ($context)
         {
-
             return $context->cacheStorage;
         });
 
         # translator
         if ($context->hasService('translator')) {
             $this->context->addService('translator', $context->translator);
-            $this->template->setTranslator($this->context->translator);
         }
 
         # lazy texy
@@ -221,6 +219,11 @@ abstract class BaseControl extends \Nette\Application\UI\Control
         $template->registerHelper('texy', function($s) use ($context){
             return $context->texy->process($s);
         });
+
+        if ( $this->context->hasService('translator')){
+            $template->setTranslator($this->context->translator);
+        }
+
         return $template;
     }
 }
