@@ -177,7 +177,7 @@ class DeleteControl extends \SnapCRUD\BaseControl
         foreach ($files as $file) {
             # relative
             if (preg_match('#^[^/]#', $file)) {
-                $file = $this->context->params['wwwDir'] . '/' . $file;
+                $file = $this->context->parameters['wwwDir'] . '/' . $file;
             }
             $this->unlinkQueue[] = $file;
         }

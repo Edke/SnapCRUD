@@ -180,7 +180,7 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
             throw new \InvalidArgumentException("Path is not defined for (" . $control->getName() . ").");
         }
 
-        $base = $control->getBase() ? $control->getBase() : realpath($this->context->params['wwwDir']) . DIRECTORY_SEPARATOR;
+        $base = $control->getBase() ? $control->getBase() : realpath($this->context->parameters['wwwDir']) . DIRECTORY_SEPARATOR;
         $full = $base . $control->getDestPath();
 
         $file = $control->getValue();

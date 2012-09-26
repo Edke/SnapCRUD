@@ -39,7 +39,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     public function setContext(DI\Container $context)
     {
         $this->context = new DI\Container();
-        $this->context->params['productionMode'] = $context->params['productionMode'];
+        $this->context->parameters['productionMode'] = $context->parameters['productionMode'];
 
         $this->ident = \preg_replace('#[\\\/:]+#', '_', ClassType::from($this)->getNamespaceName() . '_' .
             $this->getPresenter()->getName() . '_' .
@@ -111,7 +111,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control
             });
         }
 
-        $this->context->params['wwwDir'] = $context->params['wwwDir'];
+        $this->context->parameters['wwwDir'] = $context->parameters['wwwDir'];
 
         return $this;
     }
@@ -203,7 +203,7 @@ abstract class BaseControl extends \Nette\Application\UI\Control
                 $parts[] = $arg;
             }
         }
-        return md5($this->getPresenter()->getContext()->params['application']['md5Salt'] . implode('|', $parts));
+        return md5($this->getPresenter()->getContext()->parameters['application']['md5Salt'] . implode('|', $parts));
     }
 
     /**
