@@ -15,11 +15,6 @@ class UpdateFormControl extends BaseFormControl
     const STATE_EDIT = 'edit';
     const STATE_UPDATE = 'update';
 
-    /**
-     * Events
-     */
-    public $onSave;
-
     public function createComponentForm()
     {
         $control = $this;

@@ -17,8 +17,6 @@ class UpdateInsertFormControl extends BaseFormControl
     const STATE_UPDATE = 'update';
     const STATE_INSERT = 'insert';
 
-    /** Events */
-    public $onAdd, $onBeforeSave, $onBeforeUpdate, $onBeforeInsert, $onAfterUpdate, $onAfterInsert, $onAfterSave, $onRestore;
     /**
      * @var FileTransaction
      */

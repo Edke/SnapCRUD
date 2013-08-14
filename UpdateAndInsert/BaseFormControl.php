@@ -30,11 +30,6 @@ abstract class BaseFormControl extends \SnapCRUD\BaseControl
      */
     private $destinationOnCancel = 'default';
 
-    /**
-     * Events
-     */
-    public $onEdit;
-
     public function __construct()
     {
         parent::__construct();

@@ -14,12 +14,6 @@ Nette\Forms\Controls\SubmitButton;
 class DeleteControl extends \SnapCRUD\BaseControl
 {
 
-    /**
-     * Events
-     * @var array
-     */
-    public $onBefore, $onAfter;
-
     /** @var string */
     private $destinationReturn = 'default';
 

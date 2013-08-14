@@ -24,6 +24,19 @@ abstract class BaseControl extends \Nette\Application\UI\Control
     protected $context;
     protected $ident;
 
+    /** Events */
+    public $onEdit = array();
+    public $onSave = array();
+    public $onAdd = array();
+    public $onBeforeSave = array();
+    public $onBeforeUpdate = array();
+    public $onBeforeInsert = array();
+    public $onAfterUpdate = array();
+    public $onAfterInsert = array();
+    public $onAfterSave = array();
+    public $onRestore = array();
+    public $onBefore = array();
+    public $onAfter = array();
 
     protected function attached($control)
     {
