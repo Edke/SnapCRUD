@@ -63,12 +63,18 @@ class UpdateInsertFormControl extends BaseFormControl
 
             if ($id > 0) {
                 $current = $control->context->datafeed->getRow($id);
-                $control->onBeforeUpdate(&$values);
+                foreach ($control->onBeforeUpdate as $callable) {
+                    $callable($values);
+                }
             } else {
                 $current = $control->context->datafeed->getEmptyValues();
-                $control->onBeforeInsert(&$values);
+                foreach ($control->onBeforeInsert as $callable) {
+                    $callable($values);
+                }
             }
-            $control->onBeforeSave(&$values);
+            foreach ($control->onBeforeSave as $callable) {
+                $callable($values);
+            }
             if ($control->getForm()->hasErrors())
                 return;
 
@@ -85,11 +91,18 @@ class UpdateInsertFormControl extends BaseFormControl
             $result = $control->context->datafeed->save($values, $id);
 
             if ($id > 0) {
-                $control->onAfterUpdate($result);
+                foreach ($control->onAfterUpdate as $callable) {
+                    $callable($values);
+                }
+
             } else {
-                $control->onAfterInsert($result);
+                foreach ($control->onAfterInsert as $callable) {
+                    $callable($values);
+                }
             }
-            $control->onAfterSave($result);
+            foreach ($control->onAfterSave as $callable) {
+                $callable($values);
+            }
 
             if ($control->getForm()->hasErrors()) {
                 $control->context->datafeed->rollbackTransaction();
@@ -170,14 +183,23 @@ class UpdateInsertFormControl extends BaseFormControl
             case UpdateInsertFormControl::STATE_UPDATE:
                 # TODO configurable key
                 $defaults = $this->context->datafeed->getFormValues($this->id);
-                $this->onEdit(&$defaults);
+
+                if ($control->onEdit) {
+                    foreach ($control->onEdit as $callable) {
+                        $callable($defaults);
+                    }
+                }
                 $this->getForm()->setDefaults((array)$defaults);
                 break;
 
             case UpdateInsertFormControl::STATE_ADD:
             case UpdateInsertFormControl::STATE_INSERT:
                 $defaults = $this->context->datafeed->getEmptyValues();
-                $this->onAdd(&$defaults);
+                foreach ($control->onAdd as $callable) {
+                    $callable($defaults);
+                }
+
+
                 $this->getForm()->setDefaults((array)$defaults);
                 break;
         }

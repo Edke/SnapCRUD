@@ -35,7 +35,10 @@ class UpdateFormControl extends BaseFormControl
 
             $control->context->datafeed->beginTransaction();
 
-            $control->onSave(&$values);
+            foreach ($control->onSave as $callable) {
+                $callable($values);
+            }
+
             if ($control->getForm()->hasErrors()) {
                 $control->context->datafeed->rollbackTransaction();
                 return;
@@ -89,7 +92,9 @@ class UpdateFormControl extends BaseFormControl
         # defaults
         if ($this->state == UpdateFormControl::STATE_EDIT) {
             $defaults = new \Nette\ArrayHash();
-            $this->onEdit(&$defaults);
+            foreach ($this->onEdit as $callable) {
+                $callable($defaults);
+            }
             $this->getForm()->setDefaults((array)$defaults);
         }
 

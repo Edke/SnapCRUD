@@ -73,7 +73,9 @@ class DeleteControl extends \SnapCRUD\BaseControl
 
             $values = (object)$button->getForm()->getComponent('rows')->getValues();
 
-            $control->onBefore(&$values);
+            foreach ($control->onBefore as $callable) {
+                $callable($values);
+            }
 
             $control->context->datafeed->beginTransaction();
             $result = $control->context->datafeed->deleteRows($values);
@@ -83,7 +85,9 @@ class DeleteControl extends \SnapCRUD\BaseControl
                 $control->getPresenter()->flashMessage($message);
                 $control->getPresenter()->redirect($control->getDestinationReturn());
             }
-            $control->onAfter(&$values);
+            foreach ($control->onAfter as $callable) {
+                $callable($values);
+            }
             $control->context->datafeed->commitTransaction();
 
             if ($result > 0) {
